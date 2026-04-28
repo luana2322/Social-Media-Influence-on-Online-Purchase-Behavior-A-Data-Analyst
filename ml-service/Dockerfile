@@ -1,12 +1,11 @@
-FROM python:3.9-slim
+FROM python:3.10-slim-bookworm
 
 WORKDIR /app
 
-COPY ml-service/requirements.txt .
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY ml-service/main.py .
-COPY models/ ./models/
+COPY . .
 
 EXPOSE 8000
 

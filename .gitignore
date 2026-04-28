@@ -17,3 +17,12 @@ __pycache__/
 *.pyc
 *.pyo
 .env
+
+# Java/Maven
+target/
+*.class
+
+# Node.js
+node_modules/
+build/
+.cache/
