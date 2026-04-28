@@ -1,0 +1,12 @@
+{
+  "model_type": "XGBoost",
+  "version": "1.0.0",
+  "training_date": "2026-04-28",
+  "metrics": {
+    "accuracy": 0.9332,
+    "f1": 0.7554904831625183,
+    "roc_auc": 0.9538809217212019
+  },
+  "dataset_version": "final_fused_dataset_v1",
+  "features_count": 17
+}
