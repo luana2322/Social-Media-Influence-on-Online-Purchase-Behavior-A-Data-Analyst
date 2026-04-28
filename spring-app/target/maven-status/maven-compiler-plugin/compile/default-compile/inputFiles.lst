@@ -1,0 +1,6 @@
+/Users/luana/Ki8/DACN/dataAna/spring-app/src/main/java/com/example/socialpurchase/SocialPurchaseApplication.java
+/Users/luana/Ki8/DACN/dataAna/spring-app/src/main/java/com/example/socialpurchase/client/MLServiceClient.java
+/Users/luana/Ki8/DACN/dataAna/spring-app/src/main/java/com/example/socialpurchase/controller/PredictionController.java
+/Users/luana/Ki8/DACN/dataAna/spring-app/src/main/java/com/example/socialpurchase/dto/PredictionRequest.java
+/Users/luana/Ki8/DACN/dataAna/spring-app/src/main/java/com/example/socialpurchase/dto/PredictionResponse.java
+/Users/luana/Ki8/DACN/dataAna/spring-app/src/main/java/com/example/socialpurchase/service/PredictionService.java
