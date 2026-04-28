@@ -47,12 +47,16 @@ services:
       - ./uploads:/app/uploads
 
   frontend:
-    build: ./frontend
+    build: ./ai-marketing-dashboard
     container_name: marketing-frontend
     ports:
       - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://localhost:8080
     depends_on:
       - spring-app
+    restart: unless-stopped
 
 volumes:
   postgres_data:
