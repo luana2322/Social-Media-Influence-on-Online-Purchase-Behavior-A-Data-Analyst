@@ -1,6 +1,0 @@
-com/example/socialpurchase/dto/PredictionRequest.class
-com/example/socialpurchase/SocialPurchaseApplication.class
-com/example/socialpurchase/dto/PredictionResponse.class
-com/example/socialpurchase/client/MLServiceClient.class
-com/example/socialpurchase/controller/PredictionController.class
-com/example/socialpurchase/service/PredictionService.class
