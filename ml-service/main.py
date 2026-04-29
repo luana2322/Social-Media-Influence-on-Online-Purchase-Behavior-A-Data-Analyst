@@ -67,7 +67,7 @@ class SinglePredictionResponse(BaseModel):
 async def load_model():
     global model, features_schema, metadata, MODEL_VERSION
     try:
-        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        base_dir = os.path.dirname(os.path.abspath(__file__))
         model_path = os.path.join(base_dir, 'models', 'model.pkl')
         features_path = os.path.join(base_dir, 'models', 'features.json')
         metadata_path = os.path.join(base_dir, 'models', 'metadata.json')

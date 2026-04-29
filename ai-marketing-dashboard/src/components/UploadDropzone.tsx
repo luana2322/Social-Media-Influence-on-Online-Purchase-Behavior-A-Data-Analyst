@@ -1,11 +1,18 @@
 "use client"
-import { useCallback } from "react"
+
+import { useCallback, useState } from "react"
 import { useDropzone } from "react-dropzone"
-import { UploadCloud, FileText, CheckCircle } from "lucide-react"
+import { UploadCloud, FileText, CheckCircle, Loader2 } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { uploadDataset } from "@/lib/api"
+import { useRouter } from "next/navigation"
 
 export function UploadDropzone() {
+  const router = useRouter()
+  const [uploading, setUploading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
   const onDrop = useCallback((acceptedFiles: File[]) => {
     console.log(acceptedFiles)
   }, [])
@@ -17,6 +24,22 @@ export function UploadDropzone() {
     },
     maxFiles: 1,
   })
+
+  const handleRunPrediction = async () => {
+    if (acceptedFiles.length === 0) return
+
+    setUploading(true)
+    setError(null)
+
+    try {
+      const result = await uploadDataset(acceptedFiles[0])
+      router.push(`/jobs/${result.jobId}`)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Upload failed")
+    } finally {
+      setUploading(false)
+    }
+  }
 
   return (
     <Card className="rounded-2xl">
@@ -54,8 +77,22 @@ export function UploadDropzone() {
             ))}
           </div>
         )}
-        <Button className="w-full mt-4 rounded-2xl" disabled={acceptedFiles.length === 0}>
-          Run Prediction
+        {error && (
+          <p className="text-sm text-red-500 mt-2">{error}</p>
+        )}
+        <Button
+          className="w-full mt-4 rounded-2xl"
+          disabled={acceptedFiles.length === 0 || uploading}
+          onClick={handleRunPrediction}
+        >
+          {uploading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Uploading...
+            </>
+          ) : (
+            "Run Prediction"
+          )}
         </Button>
       </CardContent>
     </Card>
