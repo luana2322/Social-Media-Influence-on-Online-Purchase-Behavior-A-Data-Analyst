@@ -4,6 +4,8 @@ import "./globals.css"
 import { Sidebar } from "@/components/Sidebar"
 import { Header } from "@/components/Header"
 import { ThemeProvider } from "@/components/ThemeProvider"
+import { LanguageProvider } from "@/i18n/LanguageProvider"
+import HtmlLang from "@/components/HtmlLang"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -18,18 +20,20 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <div className="flex min-h-screen">
-            <Sidebar />
-            <div className="flex-1 ml-64 mt-16">
-              <Header />
-              <main className="p-6">{children}</main>
+    <LanguageProvider>
+      <HtmlLang>
+        <body className={inter.className}>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            <div className="flex min-h-screen">
+              <Sidebar />
+              <div className="flex-1 ml-64 mt-16">
+                <Header />
+                <main className="p-6">{children}</main>
+              </div>
             </div>
-          </div>
-        </ThemeProvider>
-      </body>
-    </html>
+          </ThemeProvider>
+        </body>
+      </HtmlLang>
+    </LanguageProvider>
   )
 }

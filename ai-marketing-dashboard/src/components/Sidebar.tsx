@@ -11,20 +11,22 @@ import {
   Brain,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useLanguage } from "@/i18n/LanguageProvider"
 
 const navItems = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/upload", label: "Upload Data", icon: UploadCloud },
-  { href: "/jobs", label: "Jobs", icon: ListTodo },
-  { href: "/analytics", label: "Analytics", icon: BarChart3 },
-  { href: "/chatbot", label: "Chatbot", icon: MessageSquare },
-  { href: "/settings", label: "Settings", icon: Settings },
+  { href: "/", labelKey: "dashboard" as const, icon: LayoutDashboard },
+  { href: "/upload", labelKey: "upload" as const, icon: UploadCloud },
+  { href: "/jobs", labelKey: "jobs" as const, icon: ListTodo },
+  { href: "/analytics", labelKey: "analytics" as const, icon: BarChart3 },
+  { href: "/chatbot", labelKey: "chatbot" as const, icon: MessageSquare },
+  { href: "/settings", labelKey: "settingsTitle" as const, icon: Settings },
 ]
 
 export function Sidebar() {
   const pathname = usePathname()
+  const { t, language } = useLanguage()
   return (
-    <div className="hidden md:block w-64 fixed h-full border-r bg-background overflow-y-auto">
+    <div key={language} className="hidden md:block w-64 fixed h-full border-r bg-background overflow-y-auto">
       <div className="flex h-16 items-center border-b px-6">
         <Link href="/" className="flex items-center gap-2 font-semibold">
           <Brain className="h-6 w-6 text-primary" />
@@ -44,7 +46,7 @@ export function Sidebar() {
             )}
           >
             <item.icon className="h-5 w-5" />
-            {item.label}
+            {t(item.labelKey)}
           </Link>
         ))}
       </nav>

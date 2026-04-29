@@ -13,17 +13,20 @@ import { Badge } from "@/components/ui/badge"
 import { sampleData, fileColumns } from "@/lib/mock-data"
 import { Button } from "@/components/ui/button"
 import { Play } from "lucide-react"
+import { useLanguage } from "@/i18n/LanguageProvider"
 
 export default function UploadPage() {
+  const { t } = useLanguage()
+
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-bold tracking-tight">Upload Data</h1>
+      <h1 className="text-2xl font-bold tracking-tight">{t("uploadData")}</h1>
       
       <UploadDropzone />
 
       <Card className="rounded-2xl shadow-sm">
         <CardHeader>
-          <CardTitle>File Preview (First 10 Rows)</CardTitle>
+          <CardTitle>{t("filePreview")}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="rounded-2xl border overflow-hidden">
@@ -51,7 +54,7 @@ export default function UploadPage() {
 
       <Card className="rounded-2xl shadow-sm">
         <CardHeader>
-          <CardTitle>Column Mapping</CardTitle>
+          <CardTitle>{t("columnMapping")}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -61,13 +64,13 @@ export default function UploadPage() {
                   <p className="text-sm font-medium">{col.name}</p>
                   <p className="text-xs text-muted-foreground">{col.type}</p>
                 </div>
-                <Badge variant="secondary" className="rounded-2xl">Auto-detected</Badge>
+                <Badge variant="secondary" className="rounded-2xl">{t("autoDetected")}</Badge>
               </div>
             ))}
           </div>
           <Button className="mt-6 rounded-2xl w-full" size="lg">
             <Play className="mr-2 h-4 w-4" />
-            Run Prediction
+            {t("runPrediction")}
           </Button>
         </CardContent>
       </Card>

@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Send } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useLanguage } from "@/i18n/LanguageProvider"
 
 type MessageRole = "user" | "ai"
 
@@ -14,8 +15,9 @@ interface Message {
 }
 
 export default function ChatbotPage() {
+  const { t } = useLanguage()
   const [messages, setMessages] = useState<Message[]>([
-    { role: "ai", content: "Hello! I'm your AI Marketing Assistant. Ask me about customer segments or prediction insights." },
+    { role: "ai", content: t("helloMessage") },
   ])
   const [input, setInput] = useState("")
 
@@ -25,7 +27,7 @@ export default function ChatbotPage() {
     setTimeout(() => {
       setMessages((prev) => [...prev, {
         role: "ai" as MessageRole,
-        content: "High-value customers are mostly from the 'Tech Enthusiasts' segment, representing 35% of your base with an average purchase of $1,200. They typically purchase every 45 days and respond well to premium product recommendations."
+        content: t("helloMessage")
       }])
     }, 1000)
     setInput("")
@@ -33,9 +35,9 @@ export default function ChatbotPage() {
 
   return (
     <div className="flex flex-col gap-6 h-[calc(100vh-10rem)]">
-      <h1 className="text-2xl font-bold tracking-tight">AI Chatbot</h1>
+      <h1 className="text-2xl font-bold tracking-tight">{t("aiChatbot")}</h1>
       <Card className="rounded-2xl shadow-sm flex-1 flex flex-col">
-        <CardHeader><CardTitle>Chat with AI Assistant</CardTitle></CardHeader>
+        <CardHeader><CardTitle>{t("chatWithAI")}</CardTitle></CardHeader>
         <CardContent className="flex-1 overflow-y-auto flex flex-col gap-4">
           {messages.map((msg, i) => <ChatMessage key={i} {...msg} />)}
         </CardContent>
@@ -45,7 +47,7 @@ export default function ChatbotPage() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSend()}
-              placeholder="Ask about your data..."
+              placeholder={t("askAboutData")}
               className="rounded-2xl"
             />
             <Button onClick={handleSend} className="rounded-2xl">

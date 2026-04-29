@@ -1,78 +1,240 @@
-# AI Social Media Influence & Online Purchase Prediction System
+# AI Marketing Assistant & Purchase Prediction SaaS Platform
 
 ## 🎯 Overview
-A production-ready AI system that predicts online purchase behavior by analyzing social media influence. The system uses machine learning models trained on fused data (e-commerce + social media + product data) and serves predictions via a FastAPI ML service with Spring Boot as the backend API layer.
+A production-ready **SaaS platform** that predicts online purchase behavior using ML models trained on fused data (e-commerce + social media + product). The platform features:
+- **Batch prediction** with CSV upload (10K-1M rows) and auto column mapping
+- **AI Marketing Dashboard** (Next.js) with analytics and segmentation
+- **Chatbot with LLM integration** for conversational marketing insights
+- **Async job processing** with progress tracking
+- **Multi-tenant architecture** with PostgreSQL
 
 ## 🏗️ Architecture
 ```
-Client → Spring Boot (port 8080) → FastAPI ML Service (port 8000) → XGBoost Model (model.pkl)
-                ↓
-                                    sklearn Pipeline (preprocessing + prediction)
+┌─────────────────────────────────────────────────────┐
+│                    SaaS Platform                     │
+├─────────────────────────────────────────────────────┤
+│                                                     │
+│  ┌─────────────┐      ┌──────────────────┐     ┌──────────┐   │
+│  │   Frontend   │──────│  Spring Boot   │─────│  LLM     │   │
+│  │   (Next.js)  │      │  (SaaS Backend)│     │  (OpenAI)│   │
+│  └─────────────┘      └──────────────────┘     └──────────┘   │
+│         │                      │                               │
+│         │              ┌───────┴───────┐                       │
+│         │              │  PostgreSQL   │                       │
+│         │              │  (Multi-tenant)│                      │
+│         │              └───────────────┘                       │
+│         │                      │                               │
+│         │             ┌──────────────┐                        │
+│         └─────────────│  FastAPI     │──────────────────────┘
+│                        │  (ML Service)│
+│                        └───────┬───────┘
+│                                │
+│                        ┌───────┴───────┐
+│                        │ XGBoost     │
+│                        │ Pipeline     │
+│                        └───────────────┘
+└─────────────────────────────────────────────────────┘
 ```
 
 **Data Flow:**
-`output/final_fused_dataset.csv` → `scripts/train_model.py` → `models/model.pkl` (Pipeline)
+1. User uploads CSV → Spring Boot (validation + auto column mapping with fuzzy matching)
+2. Spring Boot creates async job → returns jobId immediately (no timeout)
+3. Background thread processes batch → calls FastAPI `/batch_predict` (vectorized)
+4. Results stored in PostgreSQL with segmentation (High/Medium/Low)
+5. Chatbot: Frontend → Spring Boot → LLM + fresh ML context from DB
 
 ## ✨ Features
-- **Binary Classification**: Predict purchase probability (0-1)
+- **Batch Prediction**: Vectorized processing (no loops) for 10K-1M row CSVs
+- **Auto Column Mapping**: Fuzzy matching (Levenshtein distance) + heuristic mapping
 - **sklearn Pipeline**: Bundles preprocessing + XGBoost model (no separate scaler/encoder)
-- **FastAPI Endpoints**: `/predict`, `/health`, `/metadata`
-- **Spring Boot Backend**: REST API with timeout + retry logic
+- **Next.js Dashboard**: Modern UI with analytics, segmentation, and result visualization
+- **AI Chatbot**: LLM-powered marketing assistant with ML context
+- **Async Processing**: Spring Boot `@Async` with job tracking and progress monitoring
+- **Multi-tenant Ready**: PostgreSQL with proper indexing (no Redis caching)
+- **FastAPI Endpoints**: `/predict`, `/batch_predict`, `/health`, `/metadata`
+- **Spring Boot Backend**: REST API with reactive WebClient + retry logic
 - **Input Validation**: Pydantic (FastAPI) + Jakarta Validation (Spring Boot)
-- **Structured Logging**: Python logging module + SLF4J/Logback
 - **Dockerized**: Multi-container setup with docker-compose
 - **Model Metadata**: Version tracking via `metadata.json`
 
 ## 🛠️ Tech Stack
 | Component | Technology |
 |-----------|-------------|
-| ML Training | Python 3.9+, scikit-learn, XGBoost, pandas |
-| ML Serving | FastAPI, uvicorn, joblib |
-| Backend API | Spring Boot 3.2, Java 17, Maven |
-| HTTP Client | WebClient with reactive retry pattern |
-| Containerization | Docker, docker-compose |
-| Data Source | Processed CSV (50K samples, 17 features) |
+| **Frontend** | Next.js 16, React 19, TypeScript, Tailwind CSS, shadcn/ui, Recharts |
+| **Backend API** | Spring Boot 4.0, Java 17, Maven, WebClient (reactive) |
+| **ML Training** | Python 3.10+, scikit-learn, XGBoost, pandas, joblib |
+| **ML Serving** | FastAPI, uvicorn |
+| **Database** | PostgreSQL 15 |
+| **AI/LLM** | OpenAI API (chatbot integration) |
+| **Containerization** | Docker, docker-compose |
+| **Data Source** | CSV upload (10K-1M rows, 17 features after mapping) |
+
+## 🤖 AI Model Architecture
+
+### Model Type: XGBoost (Extreme Gradient Boosting)
+- **Selected via comparison**: Outperformed Logistic Regression & Random Forest on ROC-AUC
+- **Implementation**: sklearn Pipeline bundling preprocessing + XGBoost classifier
+- **Training Script**: `scripts/train_model.py`
+
+### Pipeline Architecture
+```
+Input CSV (17 features)
+        ↓
+┌───────────────────────────────────┐
+│     sklearn Pipeline              │
+│                                   │
+│  ┌─────────────────────────┐    │
+│  │ ColumnTransformer       │    │
+│  │                         │    │
+│  │ ┌──────────┐ ┌────────┐│    │
+│  │ │Standard  │ │OneHot  ││    │
+│  │ │Scaler    │ │Encoder ││    │
+│  │ │(num: 10) │ │(cat: 7)││    │
+│  │ └──────────┘ └────────┘│    │
+│  └─────────────────────────┘    │
+│               ↓                   │
+│  ┌─────────────────────────┐    │
+│  │ XGBoost Classifier     │    │
+│  │ (random_state=42,      │    │
+│  │  eval_metric=logloss)  │    │
+│  └─────────────────────────┘    │
+└───────────────────────────────────┘
+        ↓
+Output: purchase_probability (0-1)
+```
+
+### Features (17 Total)
+
+**Numerical Features (10)** - StandardScaler applied:
+| Feature | Description |
+|---------|-------------|
+| `PageValues` | Average page value during session |
+| `BounceRates` | Percentage of single-page visits |
+| `ExitRates` | Percentage of exits from that page |
+| `ProductRelated` | Number of product-related pages visited |
+| `Administrative` | Number of administrative pages visited |
+| `avg_sentiment` | Average social media sentiment score |
+| `total_engagement` | Total social media engagement count |
+| `positive_ratio` | Ratio of positive social interactions |
+| `engagement_norm` | Normalized engagement score |
+| `global_avg_price` | Global average product price |
+
+**Categorical Features (7)** - OneHotEncoder (drop='first') applied:
+| Feature | Values |
+|---------|--------|
+| `Month` | Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec |
+| `OperatingSystems` | 1, 2, 3, 4, 5, 6, 7, 8 |
+| `Browser` | 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 |
+| `Region` | 1, 2, 3, 4, 5, 6, 7, 8, 9 |
+| `TrafficType` | 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 |
+| `VisitorType` | New_Visitor, Returning_Visitor, Other |
+| `Weekend` | 0 (No), 1 (Yes) |
+
+### Training Process
+1. **Data Source**: `output/final_fused_dataset.csv` (50,000 samples)
+2. **Train/Test Split**: 80/20 with stratification on target variable
+3. **Random State**: 42 (reproducible results)
+4. **Target Variable**: `Revenue` (binary: 0 = no purchase, 1 = purchase)
+
+### Model Selection Results
+| Model | Accuracy | F1-Score | ROC-AUC | Selected |
+|-------|----------|----------|---------|----------|
+| Logistic Regression | 0.9180 | 0.6751 | 0.9058 | ❌ |
+| Random Forest | 0.9341 | 0.7443 | 0.9466 | ❌ |
+| **XGBoost** | **0.9332** | **0.7555** | **0.9539** | ✅ |
+
+**Why XGBoost?**
+- Highest ROC-AUC (0.9539) - best at ranking predictions
+- Highest F1-Score (0.7555) - best balance of precision/recall
+- Handles mixed data types well
+- Robust to overfitting with proper regularization
+
+### Model Artifacts
+| File | Description |
+|------|-------------|
+| `models/model.pkl` | Complete sklearn Pipeline (preprocessor + XGBoost) |
+| `models/features.json` | Feature schema (names, types, order) |
+| `models/metadata.json` | Model version, training date, metrics |
+| `models/evaluation_report.json` | Full comparison of all 3 models |
+
+### Model Serving
+- **Format**: joblib pickle (entire Pipeline object)
+- **API Endpoints**:
+  - `POST /predict` - Single prediction (JSON input)
+  - `POST /batch_predict` - Batch prediction (vectorized, no loops)
+- **Input Validation**: Pydantic schemas in FastAPI
+- **Output**: `purchase_probability` (float 0-1) + model metadata
+
+---
 
 ## 📂 Project Structure
 ```
-AI-Social-Purchase-Prediction/
-├── output/                          # Processed data (DO NOT MODIFY)
-│   ├── final_fused_dataset.csv      # Main ML dataset (50K rows, 42 cols)
-│   ├── data_fusion.db               # SQLite database (optional)
-│   └── *.png                       # Analysis charts
-├── models/                          # Trained model artifacts
-│   ├── model.pkl                    # sklearn Pipeline (preprocessing + XGBoost)
-│   ├── features.json                # Feature schema (names, types, order)
-│   ├── metadata.json                # Model versioning info
-│   └── evaluation_report.json      # Performance metrics
-├── scripts/                         # Training scripts
-│   ├── train_model.py              # Model training script
-│   └── test_endpoints.sh           # API testing script
+dataAna/
+├── ai-marketing-dashboard/          # Next.js frontend (v16, React 19, TypeScript)
+│   ├── src/                        # Components, pages, API clients
+│   ├── public/                     # Static assets
+│   ├── package.json
+│   ├── Dockerfile
+│   └── README.md
+├── frontend/                        # Legacy React frontend (MUI-based)
+│   ├── src/                        # React components
+│   └── package.json
 ├── ml-service/                      # FastAPI ML service
-│   ├── main.py                     # Endpoints: /predict, /health, /metadata
+│   ├── main.py                     # Endpoints: /predict, /batch_predict, /health, /metadata
 │   ├── requirements.txt
 │   └── Dockerfile
-├── spring-app/                      # Spring Boot backend
+├── spring-app/                      # Spring Boot SaaS backend
 │   ├── src/main/java/com/example/socialpurchase/
-│   │   ├── controller/              # PredictionController.java
-│   │   ├── service/                # PredictionService.java
-│   │   ├── client/                 # MLServiceClient.java (timeout+retry)
-│   │   └── dto/                    # PredictionRequest.java, PredictionResponse.java
+│   │   ├── controller/             # JobController, ChatbotController, PredictionController
+│   │   ├── service/               # PredictionService, JobService, ChatbotService
+│   │   ├── client/                # MLServiceClient (WebClient + retry)
+│   │   ├── dto/                   # Request/Response objects
+│   │   └── entity/                # JPA entities (Job, PredictionResult)
 │   ├── pom.xml
 │   └── Dockerfile
-├── docker-compose.yml               # Orchestrates both services
+├── models/                          # Trained model artifacts
+│   ├── model.pkl                   # sklearn Pipeline (preprocessing + XGBoost)
+│   ├── features.json               # Feature schema (names, types, order)
+│   ├── metadata.json               # Model versioning info
+│   └── evaluation_report.json     # Performance metrics
+├── scripts/                         # Training scripts
+│   ├── train_model.py             # Model training script
+│   └── test_endpoints.sh          # API testing script
+├── output/                          # Processed data (reference only)
+│   ├── final_fused_dataset.csv     # Original ML dataset (50K rows)
+│   └── *.png                      # Analysis charts
+├── sql/                             # Database schemas
+│   └── schema.sql
+├── uploads/                         # CSV upload temp storage
+├── docker-compose.yml               # Orchestrates all services
 ├── requirements.txt                 # Python dependencies (root)
-├── IMPLEMENT_PLAN.md               # Detailed implementation plan
+├── IMPLEMENT_PLAN_SaaS.md          # SaaS implementation plan
+├── QUICKSTART.md                    # Quick start guide
 └── README.md
 ```
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Python 3.9+
-- Java 17+
-- Maven 3.9+
-- Docker & docker-compose (optional)
+- Docker & Docker Compose (recommended)
+- Java 17+ (for local backend development)
+- Python 3.10+ (for local ML service development)
+- Node.js 18+ (for local frontend development)
+
+### Docker Setup (Recommended)
+```bash
+docker-compose up --build -d
+```
+Access:
+- **Frontend Dashboard**: http://localhost:3000
+- **Spring Boot API**: http://localhost:8080/api
+- **ML Service**: http://localhost:8000
+- **PostgreSQL**: localhost:5432
+
+Initialize database:
+```bash
+docker exec -i marketing-postgres psql -U postgres marketing_ai < sql/schema.sql
+```
 
 ### Local Setup (Without Docker)
 
@@ -86,7 +248,8 @@ Output: `models/model.pkl`, `models/features.json`, `models/metadata.json`
 **2. Start FastAPI ML Service (Terminal 1):**
 ```bash
 cd ml-service
-python3 -m uvicorn main:app --host 0.0.0.0 --port 8000
+pip install -r requirements.txt
+uvicorn main:app --host 0.0.0.0 --port 8000
 ```
 
 **3. Start Spring Boot Backend (Terminal 2):**
@@ -95,13 +258,13 @@ cd spring-app
 mvn spring-boot:run
 ```
 
-### Docker Setup
+**4. Start Next.js Frontend (Terminal 3):**
 ```bash
-docker-compose up --build
+cd ai-marketing-dashboard
+npm install
+npm run dev
 ```
-This starts:
-- ML Service at `http://localhost:8000`
-- Spring Boot at `http://localhost:8080`
+Frontend: http://localhost:3000
 
 ## 📡 API Documentation
 
@@ -111,37 +274,13 @@ This starts:
 ```bash
 curl http://localhost:8000/health
 ```
-Response:
-```json
-{
-  "status": "healthy",
-  "model_loaded": true,
-  "features_count": 17,
-  "model_type": "XGBoost"
-}
-```
 
 #### Model Metadata
 ```bash
 curl http://localhost:8000/metadata
 ```
-Response:
-```json
-{
-  "model_type": "XGBoost",
-  "version": "1.0.0",
-  "training_date": "2026-04-28",
-  "metrics": {
-    "accuracy": 0.9332,
-    "f1": 0.7555,
-    "roc_auc": 0.9539
-  },
-  "dataset_version": "final_fused_dataset_v1",
-  "features_count": 17
-}
-```
 
-#### Prediction
+#### Single Prediction
 ```bash
 curl -X POST http://localhost:8000/predict \
   -H "Content-Type: application/json" \
@@ -165,45 +304,47 @@ curl -X POST http://localhost:8000/predict \
     "Weekend": 0
   }'
 ```
-Response:
-```json
-{
-  "purchase_probability": 0.9999,
-  "model_version": "1.0.0",
-  "model_type": "XGBoost"
-}
-```
 
-### Spring Boot (Port 8080)
-
-#### Prediction (Proxy to ML Service)
+#### Batch Prediction (Vectorized)
 ```bash
-curl -X POST http://localhost:8080/predict \
+curl -X POST http://localhost:8000/batch_predict \
   -H "Content-Type: application/json" \
   -d '{
-    "PageValues": 50.0,
-    "BounceRates": 0.02,
-    "ExitRates": 0.05,
-    "ProductRelated": 30.0,
-    "Administrative": 5.0,
-    "avg_sentiment": 0.7,
-    "total_engagement": 100.0,
-    "positive_ratio": 0.8,
-    "engagement_norm": 0.6,
-    "global_avg_price": 120.0,
-    "Month": "May",
-    "OperatingSystems": 2,
-    "Browser": 3,
-    "Region": 3,
-    "TrafficType": 2,
-    "VisitorType": "Returning_Visitor",
-    "Weekend": 0
+    "records": [...],
+    "job_id": 1
   }'
+```
+
+### Spring Boot API (Port 8080)
+
+#### Upload CSV & Start Batch Job
+```bash
+curl -X POST http://localhost:8080/api/jobs/upload \
+  -F "file=@your_dataset.csv"
+# Returns: {"jobId": 1, "status": "pending"}
+```
+
+#### Check Job Status
+```bash
+curl http://localhost:8080/api/jobs/1
+# Returns: {"jobId": 1, "status": "completed", "progress": 100, ...}
+```
+
+#### Get Prediction Results (Paginated)
+```bash
+curl http://localhost:8080/api/jobs/1/results?page=0&size=100
+```
+
+#### Chatbot Query
+```bash
+curl -X POST http://localhost:8080/api/chatbot/ask \
+  -H "Content-Type: application/json" \
+  -d '{"message": "What is the purchase probability for high-engagement users?"}'
 ```
 
 #### Health Check
 ```bash
-curl http://localhost:8080/predict/health
+curl http://localhost:8080/api/actuator/health
 ```
 
 ## 📊 Model Performance
@@ -221,20 +362,17 @@ curl http://localhost:8080/predict/health
 
 See `models/evaluation_report.json` for full details.
 
-## 📁 Data Source
-**⚠️ Important:** This project uses **ONLY processed data** from the `output/` directory.
+## 📁 Data Source & Features
 
-| File | Purpose |
-|------|---------|
-| `output/final_fused_dataset.csv` | Main ML dataset (50,000 samples, 42 features) |
-| `output/data_fusion.db` | SQLite database (optional Spring Boot integration) |
-| `output/*.png` | Existing analysis charts |
+**Input:** CSV upload (10K-1M rows) with auto column mapping via fuzzy matching.
 
 **Target Variable:** `Revenue` (binary: 0 = no purchase, 1 = purchase)
 
-**Key Features (17 used):**
+**Key Features (17 after mapping):**
 - Numerical: PageValues, BounceRates, ExitRates, ProductRelated, Administrative, avg_sentiment, total_engagement, positive_ratio, engagement_norm, global_avg_price
 - Categorical: Month, OperatingSystems, Browser, Region, TrafficType, VisitorType, Weekend
+
+**Output Segmentation:** High (≥0.7), Medium (0.4-0.7), Low (<0.4) purchase probability
 
 ## 🧪 Testing
 Run the test script to verify all endpoints:
@@ -243,41 +381,50 @@ bash scripts/test_endpoints.sh
 ```
 
 **Test Coverage:**
-- ✅ ML Service health check
-- ✅ ML Service metadata endpoint
-- ✅ Valid prediction request
-- ✅ Invalid input handling (missing fields)
+- ✅ ML Service health check & metadata
+- ✅ Single & batch prediction endpoints
+- ✅ CSV upload & job creation
+- ✅ Job status & results pagination
+- ✅ Chatbot API
+- ✅ Invalid input handling
 
 **Manual Testing:**
 ```bash
 # Test FastAPI directly
 curl http://localhost:8000/health
 
-# Test Spring Boot → FastAPI flow
-curl -X POST http://localhost:8080/predict -H "Content-Type: application/json" -d @sample_request.json
+# Test batch job flow
+curl -X POST http://localhost:8080/api/jobs/upload -F "file=@dataset.csv"
+curl http://localhost:8080/api/jobs/1
 ```
 
 ## 📖 References
-- **Implementation Plan**: `IMPLEMENT_PLAN.md` (detailed 7-phase plan)
+- **SaaS Implementation Plan**: `IMPLEMENT_PLAN_SaaS.md`
+- **Quick Start Guide**: `QUICKSTART.md`
 - **Model Schema**: `models/features.json`
 - **Model Metadata**: `models/metadata.json`
 - **Training Script**: `scripts/train_model.py`
+- **Frontend README**: `ai-marketing-dashboard/README.md`
 
 ## 📝 Notes
 - Model is saved as a **sklearn Pipeline** (no separate scaler/encoder files)
+- **Vectorized batch prediction** - no loops, converts to DataFrame once
+- **Async processing** with Spring Boot `@Async` + job progress tracking
+- **No Redis caching** - uses PostgreSQL with proper indexing instead
 - Spring Boot uses **WebClient** with exponential backoff retry (max 3 attempts)
-- All input validation uses strict type checking (Pydantic + Jakarta Validation)
-- No Redis caching (removed per requirements)
-- No separate scaler/encoder artifacts (bundled in Pipeline)
+- **Auto column mapping** with fuzzy matching (Levenshtein distance ≤3)
+- Multi-tenant ready with PostgreSQL schema
 
 ## 🎓 Academic Context
-This project was built as part of a data science/ML course, demonstrating:
+This project demonstrates:
 - Data fusion techniques (e-commerce + social media + product data)
-- Production-ready ML system design
-- Microservices architecture (Python ML + Java Backend)
-- Docker containerization
+- Production-ready SaaS platform design
+- Batch ML prediction at scale (vectorized processing)
+- Microservices architecture (Python ML + Java Backend + Next.js Frontend)
+- LLM integration for conversational AI
+- Docker containerization & PostgreSQL persistence
 
 ---
 
-**Status:** ✅ Phase 1-3 Complete (Model Training, FastAPI Service, Spring Boot Structure)  
-**Next Steps:** Complete Spring Boot integration testing, finalize Docker deployment
+**Status:** ✅ SaaS Platform Complete  
+**Features:** Batch prediction, CSV upload, Next.js dashboard, AI chatbot, async job processing

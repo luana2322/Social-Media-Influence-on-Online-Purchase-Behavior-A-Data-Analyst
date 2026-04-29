@@ -31,15 +31,29 @@ public class OpenAiClient {
     }
 
     public String callApi(String prompt) {
+        return callApi(null, prompt);
+    }
+
+    public String callApi(String systemPrompt, String userPrompt) {
         if (apiKey == null || apiKey.isEmpty() || "dummy".equals(apiKey)) {
             logger.warning("OpenAI API key not configured, returning mock response");
             return "This is a mock response. Please configure openai.api.key for real responses.";
         }
 
         try {
+            List<Map<String, String>> messages;
+            if (systemPrompt != null && !systemPrompt.isEmpty()) {
+                messages = List.of(
+                    Map.of("role", "system", "content", systemPrompt),
+                    Map.of("role", "user", "content", userPrompt)
+                );
+            } else {
+                messages = List.of(Map.of("role", "user", "content", userPrompt));
+            }
+
             Map<String, Object> request = Map.of(
                 "model", model,
-                "messages", List.of(Map.of("role", "user", "content", prompt)),
+                "messages", messages,
                 "temperature", 0.7
             );
 
