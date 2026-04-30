@@ -51,20 +51,50 @@ A production-ready **SaaS platform** that predicts online purchase behavior usin
 - `marketing-spring` (Spring Boot API) - port 8080
 - `marketing-frontend` (Next.js Dashboard) - port 3000
 
-## ✨ Features
-- **Batch Prediction**: Vectorized processing (no loops) for 10K-1M row CSVs
-- **Auto Column Mapping**: Fuzzy matching (Levenshtein distance) + heuristic mapping
-- **sklearn Pipeline**: Bundles preprocessing + XGBoost model (no separate scaler/encoder)
-- **Next.js Dashboard**: Modern UI with analytics, segmentation, and result visualization
-- **Language Toggle**: EN/VI toggle with globe button in Header (stored in localStorage)
-- **AI Chatbot**: LLM-powered marketing assistant with 4-section response format (Insight, Explanation, Strategy, Recommendation)
-- **Async Processing**: Spring Boot `@Async` with job tracking and progress monitoring
-- **Multi-tenant Ready**: PostgreSQL with proper indexing (no Redis caching)
-- **FastAPI Endpoints**: `/predict`, `/batch_predict`, `/health`, `/metadata`
-- **Spring Boot Backend**: REST API with reactive WebClient + retry logic
-- **Input Validation**: Pydantic (FastAPI) + Jakarta Validation (Spring Boot)
-- **Dockerized**: Multi-container setup with docker-compose (service names: marketing-postgres, marketing-ml, marketing-spring, marketing-frontend)
-- **Model Metadata**: Version tracking via `metadata.json`
+ ## ✨ Features
+ - **Batch Prediction**: Vectorized processing (no loops) for 10K-1M row CSVs
+ - **Auto Column Mapping**: Fuzzy matching (Levenshtein distance) + heuristic mapping
+ - **sklearn Pipeline**: Bundles preprocessing + XGBoost model (no separate scaler/encoder)
+ - **Landing Page**: High-converting homepage at `/` with hero, demo, features, chatbot preview
+ - **Next.js Dashboard**: Modern UI with analytics, segmentation, and result visualization
+ - **Language Toggle**: EN/VI toggle with globe button in Header (stored in localStorage)
+ - **AI Chatbot**: LLM-powered marketing assistant with 4-section response format (Insight, Explanation, Strategy, Recommendation)
+ - **Async Processing**: Spring Boot `@Async` with job tracking and progress monitoring
+ - **Multi-tenant Ready**: PostgreSQL with proper indexing (no Redis caching)
+ - **FastAPI Endpoints**: `/predict`, `/batch_predict`, `/health`, `/metadata`
+ - **Spring Boot Backend**: REST API with reactive WebClient + retry logic
+ - **Input Validation**: Pydantic (FastAPI) + Jakarta Validation (Spring Boot)
+ - **Dockerized**: Multi-container setup with docker-compose (service names: marketing-postgres, marketing-ml, marketing-spring, marketing-frontend)
+ - **Model Metadata**: Version tracking via `metadata.json`
+
+ ## 🎯 Landing Page
+
+The landing page at `/` is designed to convert visitors within 5 seconds:
+ - **Hero Section**: "Stop guessing which customers will buy" + "Predict purchase behavior instantly with AI"
+ - **How It Works**: 3-step visual flow (Upload → AI Predicts → Get Insights)
+ - **Demo Section**: Interactive demo with sample data + pie chart (no upload required)
+ - **Features Section**: 4 key features with icons (Purchase Prediction, Segmentation, Chatbot, Analytics)
+ - **Chatbot Section**: "Ask your data like ChatGPT" with 4-section response preview
+ - **Social Proof**: Tech stack (XGBoost, FastAPI, Spring Boot, Next.js) + stats
+ - **Final CTA**: "Start predicting your customers today"
+
+### Copywriting Highlights
+ - **Pain**: "Stop guessing which customers will buy"
+ - **Solution**: "Predict purchase behavior instantly with AI"
+ - **Outcome**: "Increase conversions by 27% using intelligent customer segmentation"
+ - **CTA Buttons**: "Try Demo" (scrolls to demo), "Upload Your Data" (navigates to /upload)
+
+### Technical Implementation
+ - **Components**: `HeroSection`, `HowItWorks`, `DemoSection`, `FeaturesSection`, `ChatbotSection`, `SocialProof`, `CTASection`
+ - **Location**: `src/components/landing/`
+ - **i18n**: Full English/Vietnamese support with translation keys
+ - **Responsive**: Mobile-first design with Tailwind CSS
+ - **Charts**: Recharts for pie chart in demo section
+
+### Pages Restructuring
+ - `/` → Landing page (new)
+ - `/dashboard` → Dashboard (moved from `/`)
+ - Sidebar/Header hidden on landing page for cleaner look
 
 ## 🛠️ Tech Stack
 | Component | Technology |

@@ -1,79 +1,91 @@
-"use client"
+"use client";
 
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu"
-import { Search, Bell, User, Settings, LogOut, Globe } from "lucide-react"
-import { useLanguage } from "@/i18n/LanguageProvider"
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Globe } from "lucide-react";
+import { useLanguage } from "@/i18n/LanguageProvider";
+import { usePathname } from "next/navigation";
 
 export function Header() {
-  const { t, language, setLanguage } = useLanguage()
+  const router = useRouter();
+  const { t, language, setLanguage } = useLanguage();
+  const pathname = usePathname();
 
   const toggleLanguage = () => {
-    const newLang = language === "en" ? "vi" : "en"
-    setLanguage(newLang)
-    // Reload page to apply lang attribute change
-    window.location.reload()
+    const newLang = language === "en" ? "vi" : "en";
+    setLanguage(newLang);
+    window.location.reload();
+  };
+
+  // Simplified header for landing page
+  const isLandingPage = pathname === "/";
+
+  if (isLandingPage) {
+    return (
+      <header className="fixed top-0 left-0 w-full h-16 border-b bg-background/80 backdrop-blur-sm z-10 flex items-center justify-between px-6">
+        <div className="flex items-center gap-2 font-semibold">
+          <span>AI Marketing</span>
+        </div>
+        <div className="flex items-center gap-4">
+          <Button
+            variant={language === "en" ? "default" : "outline"}
+            size="sm"
+            className="rounded-2xl flex items-center gap-2"
+            onClick={toggleLanguage}
+          >
+            <Globe className="h-4 w-4" />
+            <span className="text-xs font-medium">
+              {language === "en" ? "EN" : "VI"}
+            </span>
+          </Button>
+          <Button
+            size="sm"
+            className="rounded-2xl"
+            onClick={() => router.push("/dashboard")}
+          >
+            {language === "vi" ? "Bảng điều khiển" : "Dashboard"}
+          </Button>
+        </div>
+      </header>
+    );
   }
 
+  // Original header for other pages
   return (
-    <header key={language} className="fixed top-0 left-64 w-[calc(100%-16rem)] h-16 border-b bg-background z-10 flex items-center justify-between px-6">
+    <header className="fixed top-0 left-64 w-[calc(100%-16rem)] h-16 border-b bg-background z-10 flex items-center justify-between px-6">
       <div className="relative w-96">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
+        <input
+          type="text"
           placeholder={t("searchPlaceholder")}
-          className="pl-10 rounded-2xl bg-accent/50 border-none"
+          className="w-full rounded-2xl bg-accent/50 border-none px-4 py-2 pl-10 text-sm"
         />
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
       </div>
       <div className="flex items-center gap-4">
         <Button
           variant={language === "en" ? "default" : "outline"}
           size="sm"
-          className={`rounded-2xl flex items-center gap-2 transition-all ${language === "vi" ? "bg-blue-50 border-blue-300 text-blue-700" : ""}`}
+          className="rounded-2xl flex items-center gap-2"
           onClick={toggleLanguage}
-          title={t("language")}
         >
           <Globe className="h-4 w-4" />
-          <span className="font-medium text-xs">{language === "en" ? "EN" : "VI"}</span>
+          <span className="text-xs font-medium">
+            {language === "en" ? "EN" : "VI"}
+          </span>
         </Button>
         <Button variant="ghost" size="icon" className="rounded-2xl">
           <Bell className="h-5 w-5" />
         </Button>
-        <DropdownMenu>
-          <DropdownMenuTrigger className="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-2xl hover:bg-accent transition-colors outline-none">
-            <Avatar className="h-8 w-8">
-              <AvatarImage src="https://github.com/shadcn.png" />
-              <AvatarFallback>JD</AvatarFallback>
-            </Avatar>
-            <span>John Doe</span>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="rounded-2xl">
-            <DropdownMenuLabel>{t("myAccount")}</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <User className="mr-2 h-4 w-4" />
-              {t("profile")}
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Settings className="mr-2 h-4 w-4" />
-              {t("settings")}
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <LogOut className="mr-2 h-4 w-4" />
-              {t("logout")}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-2xl hover:bg-accent transition-colors cursor-pointer">
+          <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">
+            J
+          </div>
+          <span>John Doe</span>
+        </div>
       </div>
     </header>
-  )
+  );
 }
+
+// Import needed components
+import { Search, Bell } from "lucide-react";
