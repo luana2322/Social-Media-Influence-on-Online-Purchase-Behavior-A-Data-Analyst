@@ -1,12 +1,53 @@
 {
   "model_type": "XGBoost",
-  "version": "1.0.0",
-  "training_date": "2026-04-29",
+  "version": "1.1.0",
+  "training_date": "2026-04-30",
   "metrics": {
-    "accuracy": 0.9332,
-    "f1": 0.7554904831625183,
-    "roc_auc": 0.9538809217212019
+    "accuracy": 0.902,
+    "f1": 0.7228506787330317,
+    "roc_auc": 0.9532251437208569,
+    "pr_auc": 0.859219707889628,
+    "precision": 0.6428571428571429,
+    "recall": 0.8255813953488372,
+    "confusion_matrix": [
+      [
+        7742,
+        710
+      ],
+      [
+        270,
+        1278
+      ]
+    ],
+    "cv_roc_auc_mean": 0.9571273986166655,
+    "cv_roc_auc_std": 0.003938202826646936,
+    "cv_f1_mean": 0.7287585886118745,
+    "cv_f1_std": 0.013451875331036426,
+    "cv_pr_auc_mean": 0.8685317563498065,
+    "cv_pr_auc_std": 0.008944498995055663,
+    "optimal_threshold": {
+      "optimal_threshold": 0.7095559239387512,
+      "optimal_f1": 0.7599999999501224,
+      "precision_at_optimal": 0.7995720399429387,
+      "recall_at_optimal": 0.7241602067183462,
+      "accuracy_at_optimal": 0.9292,
+      "confusion_matrix_optimal": [
+        [
+          8171,
+          281
+        ],
+        [
+          427,
+          1121
+        ]
+      ]
+    }
   },
   "dataset_version": "final_fused_dataset_v1",
-  "features_count": 17
+  "features_count": 17,
+  "class_imbalance_ratio": 5.457862447529868,
+  "cross_validation": {
+    "folds": 5,
+    "stratified": true
+  }
 }

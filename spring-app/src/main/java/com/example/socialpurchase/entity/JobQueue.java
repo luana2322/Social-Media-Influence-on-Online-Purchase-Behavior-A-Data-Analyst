@@ -1,6 +1,8 @@
 package com.example.socialpurchase.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Type;
+import com.fasterxml.jackson.databind.JsonNode;
 import java.time.LocalDateTime;
 
 @Entity
@@ -28,7 +30,7 @@ public class JobQueue {
     @Column(name = "locked_at")
     private LocalDateTime lockedAt;
 
-    @Column(name = "payload", columnDefinition = "JSONB")
+    @Column(name = "payload", columnDefinition = "jsonb")
     private String payload;
 
     @Column(name = "created_at")

@@ -80,6 +80,10 @@ public class JobWorkerService {
 
         int chunks = datasetStreamingService.streamAndProcess(datasetPath, jobId);
         logger.info(String.format("Job %d completed, processed %d chunks", jobId, chunks));
+
+        predictionJob.setStatus("completed");
+        predictionJob.setCompletedAt(LocalDateTime.now());
+        predictionJobRepository.save(predictionJob);
     }
 
     private void markJobDone(JobQueue jobQueue) {

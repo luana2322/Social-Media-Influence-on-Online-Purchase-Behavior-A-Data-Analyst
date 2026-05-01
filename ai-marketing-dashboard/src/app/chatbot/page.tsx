@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Send } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useLanguage } from "@/i18n/LanguageProvider"
+import { askChatbot } from "@/lib/api"
 
 type MessageRole = "user" | "ai"
 
@@ -20,17 +21,27 @@ export default function ChatbotPage() {
     { role: "ai", content: t("helloMessage") },
   ])
   const [input, setInput] = useState("")
+  const [loading, setLoading] = useState(false)
 
-  const handleSend = () => {
-    if (!input.trim()) return
-    setMessages((prev) => [...prev, { role: "user" as MessageRole, content: input }])
-    setTimeout(() => {
+  const handleSend = async () => {
+    if (!input.trim() || loading) return
+
+    const userQuestion = input
+    setMessages((prev) => [...prev, { role: "user" as MessageRole, content: userQuestion }])
+    setInput("")
+    setLoading(true)
+
+    try {
+      const answer = await askChatbot(userQuestion, 1)
+      setMessages((prev) => [...prev, { role: "ai" as MessageRole, content: answer }])
+    } catch (error) {
       setMessages((prev) => [...prev, {
         role: "ai" as MessageRole,
-        content: t("helloMessage")
+        content: "Error: Unable to get response from chatbot."
       }])
-    }, 1000)
-    setInput("")
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -49,8 +60,9 @@ export default function ChatbotPage() {
               onKeyDown={(e) => e.key === "Enter" && handleSend()}
               placeholder={t("askAboutData")}
               className="rounded-2xl"
+              disabled={loading}
             />
-            <Button onClick={handleSend} className="rounded-2xl">
+            <Button onClick={handleSend} className="rounded-2xl" disabled={loading || !input.trim()}>
               <Send className="h-4 w-4" />
             </Button>
           </div>

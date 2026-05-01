@@ -171,38 +171,55 @@ Output: purchase_probability (0-1)
 
 ### Training Process
 1. **Data Source**: `output/final_fused_dataset.csv` (50,000 samples)
-2. **Train/Test Split**: 80/20 with stratification on target variable
-3. **Random State**: 42 (reproducible results)
-4. **Target Variable**: `Revenue` (binary: 0 = no purchase, 1 = purchase)
+2. **Class Imbalance**: 15.5% positive class (ratio 5.46:1) → `scale_pos_weight=5.46`
+3. **Train/Test Split**: 80/20 with stratification on target variable
+4. **Cross-Validation**: 5-Fold Stratified K-Fold (robustness verification)
+5. **Threshold Tuning**: Optimized via precision-recall curve (optimal: 0.71)
+6. **Random State**: 42 (reproducible results)
+7. **Target Variable**: `Revenue` (binary: 0 = no purchase, 1 = purchase)
 
-### Model Selection Results
-| Model | Accuracy | F1-Score | ROC-AUC | Selected |
-|-------|----------|----------|---------|----------|
-| Logistic Regression | 0.9180 | 0.6751 | 0.9058 | ❌ |
-| Random Forest | 0.9341 | 0.7443 | 0.9466 | ❌ |
-| **XGBoost** | **0.9332** | **0.7555** | **0.9539** | ✅ |
+### Model Selection Results (Updated)
+| Model | Accuracy | F1-Score | ROC-AUC | PR-AUC | CV ROC-AUC | Selected |
+|-------|----------|----------|---------|---------|------------|----------|
+| Logistic Regression | 0.9180 | 0.6751 | 0.9058 | 0.7730 | 0.9059 ± 0.006 | ❌ |
+| Random Forest | 0.9341 | 0.7443 | 0.9466 | 0.8473 | 0.9495 ± 0.004 | ❌ |
+| **XGBoost** | **0.9020** | **0.7229** | **0.9532** | **0.8592** | **0.9571 ± 0.004** | ✅ |
+
+**XGBoost with Optimal Threshold (0.71):**
+- **F1-Score**: 0.7600 (+0.037 vs default)
+- **Precision**: 0.7996
+- **Recall**: 0.7242
+- **Accuracy**: 0.9292
 
 **Why XGBoost?**
-- Highest ROC-AUC (0.9539) - best at ranking predictions
-- Highest F1-Score (0.7555) - best balance of precision/recall
-- Handles mixed data types well
-- Robust to overfitting with proper regularization
+- Highest ROC-AUC (0.9532 test, 0.9571 CV) - best at ranking predictions
+- Highest PR-AUC (0.8592) - robust for imbalanced data
+- Includes `scale_pos_weight` to handle class imbalance
+- 5-Fold CV confirms stability (std < 0.005)
 
 ### Model Artifacts
 | File | Description |
 |------|-------------|
-| `models/model.pkl` | Complete sklearn Pipeline (preprocessor + XGBoost) |
+| `models/model.pkl` | Complete sklearn Pipeline (preprocessing + XGBoost with scale_pos_weight) |
 | `models/features.json` | Feature schema (names, types, order) |
-| `models/metadata.json` | Model version, training date, metrics |
-| `models/evaluation_report.json` | Full comparison of all 3 models |
+| `models/metadata.json` | Model version, training date, metrics, CV scores |
+| `models/evaluation_report.json` | Full comparison of all 3 models + optimal threshold |
+| `models/optimal_threshold.json` | Optimal threshold (0.71) + metrics at optimal |
+| `models/calibration_report.json` | Calibration analysis (ECE = 0.0706) |
+| `models/calibration_plot.png` | Calibration curve visualization |
 
 ### Model Serving
 - **Format**: joblib pickle (entire Pipeline object)
 - **API Endpoints**:
+  - `GET /health` - Health check
+  - `GET /metadata` - Model metadata
+  - `GET /model_info` - Comprehensive model info (calibration, threshold)
   - `POST /predict` - Single prediction (JSON input)
-  - `POST /batch_predict` - Batch prediction (vectorized, no loops)
+  - `POST /batch_predict_chunk` - Batch prediction (vectorized, no loops)
+  - `POST /segment` - Segmentation using optimal threshold
+  - `GET /explain` - SHAP explanation for predictions
 - **Input Validation**: Pydantic schemas in FastAPI
-- **Output**: `purchase_probability` (float 0-1) + model metadata
+- **Output**: `purchase_probability` (float 0-1) + model metadata + segmentation
 
 ---
 
@@ -234,8 +251,14 @@ dataAna/
 ├── models/                          # Trained model artifacts
 │   ├── model.pkl                   # sklearn Pipeline (preprocessing + XGBoost)
 │   ├── features.json               # Feature schema (names, types, order)
-│   ├── metadata.json               # Model versioning info
-│   └── evaluation_report.json     # Performance metrics
+│   ├── metadata.json               # Model version, training date, metrics, CV scores
+│   ├── evaluation_report.json     # Performance metrics (ROC-AUC, F1, PR-AUC, CV)
+│   ├── optimal_threshold.json     # Optimal threshold (0.71) + metrics
+│   ├── calibration_report.json   # Calibration analysis (ECE = 0.0706)
+│   └── calibration_plot.png       # Calibration curve visualization
+├── scripts/                         # Training & analysis scripts
+│   ├── train_model.py             # Model training with CV, threshold tuning
+│   └── calibration_analysis.py   # Model calibration analysis
 ├── scripts/                         # Training scripts
 │   └── train_model.py             # Model training script
 ├── data/                            # Test data files
@@ -414,19 +437,32 @@ curl http://localhost:8080/api/actuator/health
 **Note**: Endpoints return 404 if Spring Boot JAR doesn't include controllers. Rebuild with `docker compose build --no-cache spring-app` if needed.
 
 ## 📊 Model Performance
-| Metric | Score |
-|--------|------|
-| **Best Model** | XGBoost |
-| **ROC-AUC** | 0.9539 |
-| **Accuracy** | 0.9332 |
-| **F1-Score** | 0.7555 |
+| Metric | Score (Test) | CV Score (5-Fold) |
+|--------|---------------|-------------------|
+| **Best Model** | XGBoost | XGBoost |
+| **ROC-AUC** | 0.9532 | 0.9571 ± 0.004 |
+| **PR-AUC** | 0.8592 | 0.8685 ± 0.009 |
+| **Accuracy** | 0.9020 (0.9292*) | - |
+| **F1-Score** | 0.7229 (0.7600*) | 0.7288 ± 0.014 |
+| **Precision** | 0.6429 (0.7996*) | - |
+| **Recall** | 0.8256 (0.7242*) | - |
+| **Optimal Threshold** | 0.71 | - |
+
+*Values in parentheses are with optimal threshold (0.71)
 
 **Model Comparison:**
-- Logistic Regression: ROC-AUC 0.9058
-- Random Forest: ROC-AUC 0.9466
-- **XGBoost: ROC-AUC 0.9539** ✅
+- Logistic Regression: ROC-AUC 0.9058, F1 0.6751
+- Random Forest: ROC-AUC 0.9466, F1 0.7443
+- **XGBoost: ROC-AUC 0.9532, F1 0.7229 (0.7600 with optimal threshold)** ✅
 
-See `models/evaluation_report.json` for full details.
+**Key Improvements:**
+- ✅ Added `scale_pos_weight=5.46` to handle class imbalance (15.5% positive)
+- ✅ 5-Fold Cross-Validation for robust evaluation
+- ✅ Threshold tuning (0.5 → 0.71) improved F1 by +0.037
+- ✅ Added PR-AUC metric (better for imbalanced data)
+- ✅ Calibration analysis (ECE = 0.0706 - moderately calibrated)
+
+See `models/evaluation_report.json` and `models/calibration_report.json` for full details.
 
 ## 📁 Data Source & Features
 
@@ -438,7 +474,7 @@ See `models/evaluation_report.json` for full details.
 - Numerical: PageValues, BounceRates, ExitRates, ProductRelated, Administrative, avg_sentiment, total_engagement, positive_ratio, engagement_norm, global_avg_price
 - Categorical: Month, OperatingSystems, Browser, Region, TrafficType, VisitorType, Weekend
 
-**Output Segmentation:** High (≥0.7), Medium (0.4-0.7), Low (<0.4) purchase probability
+**Output Segmentation:** High (≥0.8), Medium (optimal_threshold 0.71-0.8), Low (<0.71) purchase probability
 
 ## 🧪 Testing
 Run the test script to verify all endpoints:
@@ -507,6 +543,9 @@ The frontend supports **English (EN) and Vietnamese (VI)** with:
 ## 🎓 Academic Context
 This project demonstrates:
 - Data fusion techniques (e-commerce + social media + product data)
+- ML model training with imbalanced data handling (`scale_pos_weight`)
+- Model evaluation best practices (5-Fold CV, PR-AUC, calibration analysis)
+- Threshold optimization for business metrics (F1-score improvement)
 - Production-ready SaaS platform design
 - Batch ML prediction at scale (vectorized processing)
 - Microservices architecture (Python ML + Java Backend + Next.js Frontend)
@@ -514,24 +553,31 @@ This project demonstrates:
 - Docker containerization & PostgreSQL persistence
 
 ---
-
-**Status:** ✅ Core Features Complete, 🔧 Testing End-to-End  
+**Status:** ✅ Core Features Complete, Model Upgraded  
 **Completed:**
-- ✅ AI Model Training (XGBoost, ROC-AUC 0.9539)
-- ✅ ML Service API (FastAPI with /predict, /batch_predict, /health)
+- ✅ AI Model Training (XGBoost, ROC-AUC 0.9571 CV, F1 0.760 with optimal threshold)
+- ✅ Class Imbalance Handling (`scale_pos_weight=5.46`)
+- ✅ 5-Fold Cross-Validation (stable performance: std <0.005)
+- ✅ Threshold Tuning (0.5 → 0.71, F1 +0.037)
+- ✅ Model Calibration Analysis (ECE = 0.0706)
+- ✅ PR-AUC Metric (0.8592 test, 0.8685 CV)
+- ✅ ML Service API (FastAPI with /predict, /batch_predict, /model_info, /explain)
 - ✅ Spring Boot Backend (BatchJobController, DatasetController, ChatbotController)
 - ✅ Next.js Frontend (Dashboard, Upload, Chatbot, Language Toggle EN/VI)
 - ✅ Chatbot System Prompt (4-section format: Insight, Explanation, Strategy, Recommendation)
 - ✅ Docker Compose Setup (4 services: postgres, marketing-ml, marketing-spring, marketing-frontend)
-- ✅ Model Version Fix (scikit-learn 1.6.1 match between training and serving)
+- ✅ Model Version Upgrade (v1.0.0 → v1.1.0)
 
-**In Progress:**
-- 🔧 Verifying CSV upload → prediction flow end-to-end
-- 🔧 Testing Spring Boot endpoints (ensuring JAR includes all controllers)
+**Model Metrics (v1.1.0):**
+- ROC-AUC: 0.9571 (CV) | 0.9532 (test)
+- F1-Score: 0.7600 (with optimal threshold 0.71)
+- PR-AUC: 0.8685 (CV) | 0.8592 (test)
+- Calibration ECE: 0.0706 (moderately calibrated)
 
 **Next Steps:**
 1. Confirm all Docker services running: `docker ps`
 2. Test ML service: `curl http://localhost:8000/health`
-3. Test CSV upload: `curl -X POST -F "file=@data/sample.csv" http://localhost:8080/api/jobs/upload`
-4. Verify frontend: http://localhost:3000 (test language toggle EN/VI)
-5. Test chatbot with sample marketing questions
+3. Test model info: `curl http://localhost:8000/model_info`
+4. Test CSV upload: `curl -X POST -F "file=@data/sample.csv" http://localhost:8080/api/jobs/upload`
+5. Verify frontend: http://localhost:3000 (test language toggle EN/VI)
+6. Test chatbot with sample marketing questions

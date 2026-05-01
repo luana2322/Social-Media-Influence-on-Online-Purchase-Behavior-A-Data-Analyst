@@ -20,7 +20,7 @@ import java.util.logging.Logger;
 @Service
 public class JobProducerService {
     private static final Logger logger = Logger.getLogger(JobProducerService.class.getName());
-    private static final String UPLOAD_DIR = "./uploads";
+    private static final String UPLOAD_DIR = "/app/uploads";
 
     @Autowired private JobQueueRepository jobQueueRepository;
     @Autowired private PredictionJobRepository predictionJobRepository;

@@ -46,7 +46,7 @@ function ResultsPage() {
     <Box>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
         <Typography variant="h4">Job #{jobId} Results</Typography>
-        <Button component={Link} to="/chatbot/${jobId}" variant="contained">
+          <Button component={Link} to={`/chatbot/${jobId}`} variant="contained">
           Ask Chatbot
         </Button>
       </Box>

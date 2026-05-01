@@ -24,6 +24,7 @@ app = FastAPI(title="Social Media Purchase Prediction API")
 model = None
 features_schema = None
 metadata = None
+optimal_threshold = None
 MODEL_VERSION = "v1.0.0"
 
 class BatchRecord(BaseModel):
@@ -65,20 +66,27 @@ class SinglePredictionResponse(BaseModel):
 
 @app.on_event("startup")
 async def load_model():
-    global model, features_schema, metadata, MODEL_VERSION
+    global model, features_schema, metadata, MODEL_VERSION, optimal_threshold
     try:
         base_dir = os.path.dirname(os.path.abspath(__file__))
         model_path = os.path.join(base_dir, 'models', 'model.pkl')
         features_path = os.path.join(base_dir, 'models', 'features.json')
         metadata_path = os.path.join(base_dir, 'models', 'metadata.json')
+        threshold_path = os.path.join(base_dir, 'models', 'optimal_threshold.json')
 
         model = joblib.load(model_path)
         with open(features_path, 'r') as f:
             features_schema = json.load(f)
         with open(metadata_path, 'r') as f:
             metadata = json.load(f)
+        try:
+            with open(threshold_path, 'r') as f:
+                threshold_data = json.load(f)
+                optimal_threshold = threshold_data.get('optimal_threshold', 0.5)
+        except FileNotFoundError:
+            optimal_threshold = 0.5
         MODEL_VERSION = metadata.get('version', 'v1.0.0')
-        logger.info(f"Model loaded successfully. Version: {MODEL_VERSION}")
+        logger.info(f"Model loaded successfully. Version: {MODEL_VERSION}, Optimal threshold: {optimal_threshold}")
     except Exception as e:
         logger.error(f"Error loading model: {e}")
         raise
@@ -98,6 +106,30 @@ async def get_metadata():
     if metadata is None:
         raise HTTPException(status_code=503, detail="Model metadata not loaded")
     return metadata
+
+@app.get("/model_info")
+async def get_model_info():
+    """Get comprehensive model info including calibration and threshold"""
+    if metadata is None:
+        raise HTTPException(status_code=503, detail="Model metadata not loaded")
+    
+    info = {
+        "model_type": metadata.get('model_type'),
+        "version": MODEL_VERSION,
+        "optimal_threshold": optimal_threshold,
+        "calibration": None
+    }
+    
+    # Load calibration report if exists
+    try:
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        calibration_path = os.path.join(base_dir, 'models', 'calibration_report.json')
+        with open(calibration_path, 'r') as f:
+            info["calibration"] = json.load(f)
+    except:
+        pass
+    
+    return info
 
 @app.post("/predict", response_model=SinglePredictionResponse)
 async def predict(request: SinglePredictionRequest):
@@ -143,7 +175,7 @@ async def batch_predict_chunk(records: List[BatchRecord]):
         probabilities = model.predict_proba(df)[:, 1]
 
         segments = np.where(probabilities > 0.8, "High",
-                   np.where(probabilities > 0.4, "Medium", "Low"))
+                   np.where(probabilities > optimal_threshold, "Medium", "Low"))
 
         results = [
             BatchPredictResponse(
@@ -163,16 +195,16 @@ async def batch_predict_chunk(records: List[BatchRecord]):
 
 @app.post("/segment")
 async def segment_predictions(probabilities: List[float]):
-    """Get segmentation labels for a list of probabilities"""
+    """Get segmentation labels for a list of probabilities using optimal threshold"""
     segments = []
     for prob in probabilities:
         if prob > 0.8:
             segments.append("High")
-        elif prob > 0.4:
+        elif prob > optimal_threshold:
             segments.append("Medium")
         else:
             segments.append("Low")
-    return {"segments": segments}
+    return {"segments": segments, "threshold_used": optimal_threshold}
 
 @app.get("/explain")
 async def explain_prediction(user_id: str, PageValues: float, BounceRates: float,

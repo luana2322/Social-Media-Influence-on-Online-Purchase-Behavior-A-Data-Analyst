@@ -13,7 +13,12 @@ export async function uploadDataset(file: File): Promise<{ jobId: number; status
     throw new Error(`Upload failed: ${response.statusText}`)
   }
 
-  return response.json()
+  const data = await response.json()
+  // Backend returns jobId (camelCase)
+  return {
+    jobId: Number(data.jobId),
+    status: data.status
+  }
 }
 
 export async function getJobStatus(jobId: number): Promise<Job> {
@@ -28,8 +33,43 @@ export async function getJobStatus(jobId: number): Promise<Job> {
 
 export interface Job {
   id: number
-  dataset: string
-  status: "pending" | "processing" | "completed" | "failed"
-  progress: number
+  status: string
+  progressPercent: number
+  totalRecords: number
+  processedRecords: number
   createdAt: string
+}
+
+export interface PredictionResult {
+  id: number
+  jobId: number
+  recordId: string
+  probability: number
+  segment: string
+  modelVersion: string
+}
+
+export async function getJobResults(jobId: number): Promise<PredictionResult[]> {
+  const response = await fetch(`${API_BASE}/jobs/${jobId}/results`)
+
+  if (!response.ok) {
+    throw new Error(`Failed to get results: ${response.statusText}`)
+  }
+
+  return response.json()
+}
+
+export async function askChatbot(question: string, jobId: number): Promise<string> {
+  const response = await fetch(`${API_BASE}/chatbot/ask`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ question, jobId }),
+  })
+
+  if (!response.ok) {
+    throw new Error(`Chatbot request failed: ${response.statusText}`)
+  }
+
+  const data = await response.json()
+  return data.answer
 }

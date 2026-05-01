@@ -16,7 +16,8 @@ function UploadPage() {
     setError('');
     try {
       const res = await uploadDataset(file);
-      setJobId(res.data.jobId);
+       const id = Number(res.data.jobId);
+       if (!isNaN(id)) setJobId(id);
     } catch (err) {
       setError('Upload failed: ' + (err.response?.data?.error || err.message));
     } finally {

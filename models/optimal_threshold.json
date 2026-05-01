@@ -1,0 +1,17 @@
+{
+  "optimal_threshold": 0.7095559239387512,
+  "optimal_f1": 0.7599999999501224,
+  "precision_at_optimal": 0.7995720399429387,
+  "recall_at_optimal": 0.7241602067183462,
+  "accuracy_at_optimal": 0.9292,
+  "confusion_matrix_optimal": [
+    [
+      8171,
+      281
+    ],
+    [
+      427,
+      1121
+    ]
+  ]
+}

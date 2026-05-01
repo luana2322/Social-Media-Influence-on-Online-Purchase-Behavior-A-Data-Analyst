@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 @RestController
-@RequestMapping("/api/jobs")
+@RequestMapping("/jobs")
 public class BatchJobController {
     private static final Logger logger = Logger.getLogger(BatchJobController.class.getName());
 

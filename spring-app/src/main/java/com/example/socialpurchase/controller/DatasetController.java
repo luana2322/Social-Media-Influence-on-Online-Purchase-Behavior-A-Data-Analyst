@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 @RestController
-@RequestMapping("/api/datasets")
+@RequestMapping("/datasets")
 public class DatasetController {
     private static final Logger logger = Logger.getLogger(DatasetController.class.getName());
 
