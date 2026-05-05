@@ -5,49 +5,6 @@ export const dashboardStats = [
   { title: "Active Users", value: "89", icon: "Users", change: "-3%", changeType: "negative" },
 ];
 
-export const jobs = [
-  {
-    id: "job_12345",
-    dataset: "customer_segments_march.csv",
-    status: "completed",
-    progress: 100,
-    createdAt: "2026-04-28T10:00:00Z",
-    records: 150000,
-  },
-  {
-    id: "job_12346",
-    dataset: "q1_campaign_data.csv",
-    status: "processing",
-    progress: 65,
-    createdAt: "2026-04-27T14:30:00Z",
-    records: 89000,
-  },
-  {
-    id: "job_12347",
-    dataset: "user_behavior_q2.csv",
-    status: "completed",
-    progress: 100,
-    createdAt: "2026-04-26T09:15:00Z",
-    records: 234000,
-  },
-  {
-    id: "job_12348",
-    dataset: "churn_prediction_march.csv",
-    status: "failed",
-    progress: 45,
-    createdAt: "2026-04-25T16:45:00Z",
-    records: 67000,
-  },
-  {
-    id: "job_12349",
-    dataset: "customer_lifetime_value.csv",
-    status: "completed",
-    progress: 100,
-    createdAt: "2026-04-24T11:20:00Z",
-    records: 312000,
-  },
-];
-
 export const segmentationData = [
   { name: "High", value: 35, fill: "#4f46e5" },
   { name: "Medium", value: 45, fill: "#818cf8" },

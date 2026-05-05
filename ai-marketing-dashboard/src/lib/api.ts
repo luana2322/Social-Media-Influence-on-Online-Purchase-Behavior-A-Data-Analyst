@@ -38,6 +38,17 @@ export interface Job {
   totalRecords: number
   processedRecords: number
   createdAt: string
+  datasetPath?: string
+}
+
+export async function listJobs(limit: number = 50): Promise<Job[]> {
+  const response = await fetch(`${API_BASE}/jobs/list?limit=${limit}`)
+
+  if (!response.ok) {
+    throw new Error(`Failed to list jobs: ${response.statusText}`)
+  }
+
+  return response.json()
 }
 
 export interface PredictionResult {
@@ -72,4 +83,22 @@ export async function askChatbot(question: string, jobId: number): Promise<strin
 
   const data = await response.json()
   return data.answer
+}
+
+export async function downloadResults(jobId: number): Promise<void> {
+  const response = await fetch(`${API_BASE}/jobs/${jobId}/download`)
+
+  if (!response.ok) {
+    throw new Error(`Download failed: ${response.statusText}`)
+  }
+
+  const blob = await response.blob()
+  const url = window.URL.createObjectURL(blob)
+  const a = document.createElement("a")
+  a.href = url
+  a.download = `job_${jobId}_results.csv`
+  document.body.appendChild(a)
+  a.click()
+  window.URL.revokeObjectURL(url)
+  document.body.removeChild(a)
 }

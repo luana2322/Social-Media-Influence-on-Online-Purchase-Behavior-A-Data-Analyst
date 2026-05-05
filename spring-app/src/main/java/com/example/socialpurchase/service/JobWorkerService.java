@@ -76,14 +76,18 @@ public class JobWorkerService {
         PredictionJob predictionJob = predictionJobRepository.findById(jobId)
                 .orElseThrow(() -> new RuntimeException("PredictionJob not found: " + jobId));
         predictionJob.setStatus("processing");
-        predictionJobRepository.save(predictionJob);
+        predictionJobRepository.saveAndFlush(predictionJob);
+        logger.info(String.format("Job %d set to processing, streaming dataset: %s", jobId, datasetPath));
 
-        int chunks = datasetStreamingService.streamAndProcess(datasetPath, jobId);
-        logger.info(String.format("Job %d completed, processed %d chunks", jobId, chunks));
+        datasetStreamingService.streamAndProcess(datasetPath, jobId);
 
+        // Re-fetch to get latest state after streaming updates
+        predictionJob = predictionJobRepository.findById(jobId)
+                .orElseThrow(() -> new RuntimeException("PredictionJob not found after streaming: " + jobId));
         predictionJob.setStatus("completed");
         predictionJob.setCompletedAt(LocalDateTime.now());
-        predictionJobRepository.save(predictionJob);
+        predictionJobRepository.saveAndFlush(predictionJob);
+        logger.info(String.format("Job %d marked as completed", jobId));
     }
 
     private void markJobDone(JobQueue jobQueue) {

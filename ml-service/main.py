@@ -25,7 +25,7 @@ model = None
 features_schema = None
 metadata = None
 optimal_threshold = None
-MODEL_VERSION = "v1.0.0"
+MODEL_VERSION = "1.1.0"
 
 class BatchRecord(BaseModel):
     recordId: str

@@ -26,3 +26,14 @@ target/
 node_modules/
 build/
 .cache/
+.next/
+
+# Uploads
+uploads/
+
+# Logs
+*.log
+
+# Temp
+*.tmp
+*.swp

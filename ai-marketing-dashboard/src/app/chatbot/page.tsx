@@ -1,5 +1,6 @@
 "use client"
-import { useState } from "react"
+import { useState, useEffect, Suspense } from "react"
+import { useSearchParams } from "next/navigation"
 import { ChatMessage } from "@/components/ChatMessage"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -15,8 +16,10 @@ interface Message {
   content: string
 }
 
-export default function ChatbotPage() {
+function ChatbotContent() {
   const { t } = useLanguage()
+  const searchParams = useSearchParams()
+  const jobId = searchParams.get("jobId")
   const [messages, setMessages] = useState<Message[]>([
     { role: "ai", content: t("helloMessage") },
   ])
@@ -32,7 +35,7 @@ export default function ChatbotPage() {
     setLoading(true)
 
     try {
-      const answer = await askChatbot(userQuestion, 1)
+      const answer = await askChatbot(userQuestion, jobId ? parseInt(jobId) : 1)
       setMessages((prev) => [...prev, { role: "ai" as MessageRole, content: answer }])
     } catch (error) {
       setMessages((prev) => [...prev, {
@@ -46,7 +49,9 @@ export default function ChatbotPage() {
 
   return (
     <div className="flex flex-col gap-6 h-[calc(100vh-10rem)]">
-      <h1 className="text-2xl font-bold tracking-tight">{t("aiChatbot")}</h1>
+      <h1 className="text-2xl font-bold tracking-tight">
+        {t("aiChatbot")} {jobId ? `- Job #${jobId}` : ""}
+      </h1>
       <Card className="rounded-2xl shadow-sm flex-1 flex flex-col">
         <CardHeader><CardTitle>{t("chatWithAI")}</CardTitle></CardHeader>
         <CardContent className="flex-1 overflow-y-auto flex flex-col gap-4">
@@ -69,5 +74,13 @@ export default function ChatbotPage() {
         </div>
       </Card>
     </div>
+  )
+}
+
+export default function ChatbotPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center h-[calc(100vh-10rem)]">Loading...</div>}>
+      <ChatbotContent />
+    </Suspense>
   )
 }

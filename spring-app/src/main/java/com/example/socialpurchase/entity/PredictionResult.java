@@ -25,6 +25,9 @@ public class PredictionResult {
     @Column(name = "model_version")
     private String modelVersion;
 
+    @Column(name = "display_id")
+    private String displayId;  // User-friendly ID for display
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -41,6 +44,9 @@ public class PredictionResult {
 
     public String getRecordId() { return recordId; }
     public void setRecordId(String recordId) { this.recordId = recordId; }
+
+    public String getDisplayId() { return displayId; }
+    public void setDisplayId(String displayId) { this.displayId = displayId; }
 
     public Double getProbability() { return probability; }
     public void setProbability(Double probability) { this.probability = probability; }

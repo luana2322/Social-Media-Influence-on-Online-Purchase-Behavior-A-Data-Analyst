@@ -19,7 +19,7 @@ public class MLBatchService {
     @Autowired private MLServiceClient mlServiceClient;
     @Autowired private PredictionResultRepository predictionResultRepository;
 
-    public void processChunk(List<Map<String, Object>> chunk, Long jobId) {
+    public void processChunk(List<Map<String, Object>> chunk, List<String> recordIds, Long jobId) {
         long startTime = System.currentTimeMillis();
 
         List<BatchPredictionResponse> predictions = mlServiceClient.batchPredictChunk(chunk);
@@ -29,7 +29,16 @@ public class MLBatchService {
             BatchPredictionResponse pred = predictions.get(i);
             PredictionResult result = new PredictionResult();
             result.setJobId(jobId);
-            result.setRecordId(chunk.get(i).getOrDefault("id", pred.getRecordId()).toString());
+            // Use meaningful record ID from CSV, fallback to prediction's recordId, then row number
+            String recordId = (i < recordIds.size()) ? recordIds.get(i) : pred.getRecordId();
+            // Clean up recordId: if unknown/empty, use row number
+            if (recordId == null || recordId.trim().isEmpty() || recordId.equalsIgnoreCase("unknown")) {
+                recordId = "row_" + (i + 1);
+            }
+            result.setRecordId(recordId);
+            // Create display ID: "Dòng X (ID: Y)" for clarity
+            String displayId = "Dòng " + (i + 1) + (recordId != null && !recordId.startsWith("row_") ? " (ID: " + recordId + ")" : "");
+            result.setDisplayId(displayId);
             result.setProbability(pred.getProbability());
             result.setSegment(pred.getSegment());
             result.setModelVersion(pred.getModelVersion());

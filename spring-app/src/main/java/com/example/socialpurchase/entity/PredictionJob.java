@@ -13,10 +13,6 @@ public class PredictionJob {
     @Column(name = "user_id")
     private Long userId;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", insertable = false, updatable = false)
-    private User user;
-
     @Column(name = "dataset_id")
     private Long datasetId;
 
@@ -40,6 +36,15 @@ public class PredictionJob {
 
     @Column(name = "error_message", columnDefinition = "TEXT")
     private String errorMessage;
+
+    @Column(name = "dataset_columns", columnDefinition = "TEXT")
+    private String datasetColumns;  // JSON string of column names
+
+    @Column(name = "dataset_type")
+    private String datasetType;  // ECOMMERCE, WEB_ANALYTICS, SOCIAL_MEDIA, etc.
+
+    @Column(name = "id_column")
+    private String idColumn;  // Detected ID column name
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -88,12 +93,18 @@ public class PredictionJob {
     public String getErrorMessage() { return errorMessage; }
     public void setErrorMessage(String errorMessage) { this.errorMessage = errorMessage; }
 
+    public String getDatasetColumns() { return datasetColumns; }
+    public void setDatasetColumns(String datasetColumns) { this.datasetColumns = datasetColumns; }
+
+    public String getDatasetType() { return datasetType; }
+    public void setDatasetType(String datasetType) { this.datasetType = datasetType; }
+
+    public String getIdColumn() { return idColumn; }
+    public void setIdColumn(String idColumn) { this.idColumn = idColumn; }
+
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
-
-    public User getUser() { return user; }
-    public void setUser(User user) { this.user = user; }
 }

@@ -1,6 +1,7 @@
 package com.example.socialpurchase.controller;
 
 import com.example.socialpurchase.entity.PredictionJob;
+import com.example.socialpurchase.entity.PredictionResult;
 import com.example.socialpurchase.repository.PredictionJobRepository;
 import com.example.socialpurchase.service.JobProducerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,22 +50,44 @@ public class BatchJobController {
     @Autowired
     private com.example.socialpurchase.repository.PredictionResultRepository predictionResultRepository;
 
-    @GetMapping("/{jobId}/results")
-    public ResponseEntity<?> getJobResults(@PathVariable Long jobId) {
+    @GetMapping("/{jobId}/download")
+    public ResponseEntity<?> downloadResults(@PathVariable Long jobId) {
         return predictionJobRepository.findById(jobId)
                 .map(job -> {
                     try {
-                        return ResponseEntity.ok().body(predictionResultRepository.findByJobId(jobId));
+                        List<PredictionResult> results = predictionResultRepository.findByJobId(jobId);
+                        StringBuilder csv = new StringBuilder();
+                        csv.append("record_id,display_id,probability,segment,model_version\n");
+                        for (PredictionResult r : results) {
+                            csv.append(String.format("%s,%s,%.4f,%s,%s\n",
+                                    r.getRecordId(), r.getDisplayId(), r.getProbability(), r.getSegment(), r.getModelVersion()));
+                        }
+                        byte[] csvBytes = csv.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8);
+                        return ResponseEntity.ok()
+                                .header("Content-Disposition", "attachment; filename=\"job_" + jobId + "_results.csv\"")
+                                .contentType(org.springframework.http.MediaType.APPLICATION_OCTET_STREAM)
+                                .body(csvBytes);
                     } catch (Exception e) {
-                        return ResponseEntity.status(500).body("Error loading results: " + e.getMessage());
+                        return ResponseEntity.status(500).body("Download failed: " + e.getMessage());
                     }
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/list")
-    public ResponseEntity<?> listJobs(@RequestParam(defaultValue = "10") int limit) {
-        List<PredictionJob> jobs = predictionJobRepository.findAll();
-        return ResponseEntity.ok().body(jobs.subList(0, Math.min(limit, jobs.size())));
+    public ResponseEntity<?> listJobs(@RequestParam(defaultValue = "50") int limit) {
+        List<PredictionJob> jobs = predictionJobRepository.findAllOrderByCreatedAtDesc();
+        int end = Math.min(limit, jobs.size());
+        return ResponseEntity.ok().body(jobs.subList(0, end));
+    }
+
+    @GetMapping("/{jobId}/results")
+    public ResponseEntity<?> getJobResults(@PathVariable Long jobId) {
+        return predictionJobRepository.findById(jobId)
+                .map(job -> {
+                    List<PredictionResult> results = predictionResultRepository.findByJobId(jobId);
+                    return ResponseEntity.ok().body(results);
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 }
