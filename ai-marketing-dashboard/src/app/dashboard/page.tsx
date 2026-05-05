@@ -1,51 +1,58 @@
-"use client";
-import { StatsCard } from "@/components/StatsCard";
-import { PredictionLineChart, PieChartComponent } from "@/components/Charts";
-import { RecentJobsTable } from "@/components/JobTable";
-import { dashboardStats } from "@/lib/mock-data";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useLanguage } from "@/i18n/LanguageProvider";
+"use client"
+import { KpiOverview } from "@/components/dashboard/KpiOverview"
+import { ProbabilityDistribution } from "@/components/dashboard/ProbabilityDistribution"
+import { FeatureImportance } from "@/components/dashboard/FeatureImportance"
+import { BehaviorInsights } from "@/components/dashboard/BehaviorInsights"
+import { TrafficSourceAnalysis } from "@/components/dashboard/TrafficSourceAnalysis"
+import { TimeAnalysis } from "@/components/dashboard/TimeAnalysis"
+import { AiInsightBox } from "@/components/dashboard/AiInsightBox"
+import { RecommendationPanel } from "@/components/dashboard/RecommendationPanel"
+import { EmbeddedChatbot } from "@/components/dashboard/EmbeddedChatbot"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useLanguage } from "@/i18n/LanguageProvider"
+import { Brain, Sparkles } from "lucide-react"
 
 export default function DashboardPage() {
-  const { t } = useLanguage();
+  const { t } = useLanguage()
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-bold tracking-tight">{t("dashboard")}</h1>
-
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {dashboardStats.map((stat) => (
-          <StatsCard key={stat.title} {...stat} />
-        ))}
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold tracking-tight">{t("dashboard")}</h1>
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Brain className="h-4 w-4" />
+          <span>Model: XGBoost v1.1.0</span>
+          <Sparkles className="h-4 w-4 text-yellow-500 ml-2" />
+          <span>Last updated: 2 min ago</span>
+        </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card className="rounded-2xl shadow-sm">
-          <CardHeader>
-            <CardTitle>{t("dashboard")} Overview</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <PredictionLineChart />
-          </CardContent>
-        </Card>
-        <Card className="rounded-2xl shadow-sm">
-          <CardHeader>
-            <CardTitle>Segmentation Distribution</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <PieChartComponent />
-          </CardContent>
-        </Card>
-      </div>
+      {/* Section 1: KPI Overview */}
+      <KpiOverview />
 
-      <Card className="rounded-2xl shadow-sm">
-        <CardHeader>
-          <CardTitle>Recent Jobs</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <RecentJobsTable />
-        </CardContent>
-      </Card>
+      {/* Section 2: AI Insight Box */}
+      <AiInsightBox />
+
+      {/* Section 3: Probability Distribution + Segmentation */}
+      <ProbabilityDistribution />
+
+      {/* Section 4: Feature Importance (SHAP) */}
+      <FeatureImportance />
+
+      {/* Section 5: Behavior Insights */}
+      <BehaviorInsights />
+
+      {/* Section 6: Traffic Source Analysis */}
+      <TrafficSourceAnalysis />
+
+      {/* Section 7: Time Analysis */}
+      <TimeAnalysis />
+
+      {/* Section 8: Recommendation Panel */}
+      <RecommendationPanel />
+
+      {/* Section 9: Embedded Chatbot */}
+      <EmbeddedChatbot />
     </div>
-  );
+  )
 }

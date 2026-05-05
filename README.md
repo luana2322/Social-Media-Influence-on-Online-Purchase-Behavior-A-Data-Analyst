@@ -10,6 +10,34 @@ A production-ready **SaaS platform** that predicts online purchase behavior usin
 - **Language toggle** (EN/VI) in frontend with globe button
 - **XGBoost Pipeline** bundled as sklearn Pipeline (no separate scaler/encoder)
 
+## 📊 Model Metrics (v1.1.0)
+
+| Metric | Test Score | CV Score (5-Fold) |
+|--------|-----------|-------------------|
+| **Model** | XGBoost | XGBoost |
+| **ROC-AUC** | 0.9532 | **0.9571 ± 0.004** |
+| **PR-AUC** | 0.8592 | 0.8685 ± 0.009 |
+| **Accuracy** | 0.9020 (0.9292*) | - |
+| **F1-Score** | 0.7229 (**0.7600***) | 0.7288 ± 0.014 |
+| **Precision** | 0.6429 (0.7996*) | - |
+| **Recall** | 0.8256 (0.7242*) | - |
+| **Optimal Threshold** | **0.71** | - |
+| **Calibration (ECE)** | 0.0706 (moderate) | - |
+
+*With optimal threshold (0.71) - **F1 improved by +0.037**
+
+**Model Comparison:**
+- ❌ Logistic Regression: ROC-AUC 0.9058, F1 0.6751
+- ❌ Random Forest: ROC-AUC 0.9466, F1 0.7443
+- ✅ **XGBoost: ROC-AUC 0.9532, F1 0.7600 (best choice)**
+
+**Key Features:**
+- 17 features (10 numerical + 7 categorical)
+- Trained on 50,000 samples (`output/final_fused_dataset.csv`)
+- Class imbalance handled with `scale_pos_weight=5.46` (15.5% positive class)
+- Vectorized batch prediction (no loops)
+- SHAP explainability support
+
 ## 🏗️ Architecture
 ```
 ┌─────────────────────────────────────────────────────┐
