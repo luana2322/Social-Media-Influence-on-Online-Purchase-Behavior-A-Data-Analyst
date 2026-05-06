@@ -26,11 +26,13 @@ import {
   type ChartConfig
 } from "@/components/ui/chart"
 import { segmentationData, predictionOverTime, shapData, engagementData, sentimentData, trafficSourceData, timeDataHourly } from "@/lib/mock-data"
+import { useLanguage } from "@/i18n/LanguageProvider"
 
 // Existing Charts
 export function PredictionLineChart() {
+  const { t } = useLanguage()
   return (
-    <ChartContainer config={{ predictions: { label: "Predictions", color: "#4f46e5" } }} className="h-[300px]">
+    <ChartContainer config={{ predictions: { label: t("predictions"), color: "#4f46e5" } }} className="h-[300px]">
       <LineChart data={predictionOverTime}>
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis dataKey="month" />
@@ -43,6 +45,12 @@ export function PredictionLineChart() {
 }
 
 export function PieChartComponent() {
+  const { t } = useLanguage()
+  const getSegmentName = (name: string) => {
+    if (name === "High") return t("high")
+    if (name === "Medium") return t("medium")
+    return t("low")
+  }
   return (
     <ChartContainer config={{}} className="h-[300px]">
       <PieChart>
@@ -54,7 +62,7 @@ export function PieChartComponent() {
           cx="50%"
           cy="50%"
           outerRadius={100}
-          label={({ name, value }) => `${name}: ${value}%`}
+          label={({ name, value }) => `${getSegmentName(name ?? "")}: ${value}%`}
         >
           {segmentationData.map((entry, index) => (
             <Cell key={`cell-${index}`} fill={entry.fill} />
@@ -66,11 +74,17 @@ export function PieChartComponent() {
 }
 
 export function BarChartComponent() {
+  const { t } = useLanguage()
+  const getSegmentName = (name: string) => {
+    if (name === "High") return t("high")
+    if (name === "Medium") return t("medium")
+    return t("low")
+  }
   return (
     <ChartContainer config={{}} className="h-[300px]">
       <BarChart data={segmentationData}>
         <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="name" />
+        <XAxis dataKey="name" tickFormatter={(v: string) => getSegmentName(v)} />
         <YAxis />
         <ChartTooltip content={<ChartTooltipContent />} />
         <Bar dataKey="value" fill="#4f46e5" radius={[8, 8, 0, 0]} />
@@ -81,11 +95,12 @@ export function BarChartComponent() {
 
 // New Charts for Dashboard
 
-const shapChartConfig = {
-  importance: { label: "Importance", color: "#4f46e5" },
-} satisfies ChartConfig
-
 export function ShapBarChart() {
+  const { t } = useLanguage()
+  const shapChartConfig = {
+    importance: { label: t("importance"), color: "#4f46e5" },
+  } satisfies ChartConfig
+
   return (
     <ChartContainer config={shapChartConfig} className="h-[400px]">
       <BarChart data={[...shapData].reverse()} layout="vertical">
@@ -103,20 +118,21 @@ export function ShapBarChart() {
   )
 }
 
-const engagementChartConfig = {
-  converted: { label: "Converted", color: "#4f46e5" },
-  notConverted: { label: "Not Converted", color: "#e2e8f0" },
-} satisfies ChartConfig
-
 export function EngagementScatterChart() {
+  const { t } = useLanguage()
+  const engagementChartConfig = {
+    converted: { label: t("converted"), color: "#4f46e5" },
+    notConverted: { label: t("notConverted"), color: "#e2e8f0" },
+  } satisfies ChartConfig
+
   return (
     <ChartContainer config={engagementChartConfig} className="h-[300px]">
       <ScatterChart>
         <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="engagementScore" name="Engagement Score" domain={[0, 1]} tickFormatter={(v) => `${(v * 100).toFixed(0)}%`} />
-        <YAxis dataKey="purchaseProbability" name="Purchase Probability" domain={[0, 1]} tickFormatter={(v) => `${(v * 100).toFixed(0)}%`} />
+        <XAxis dataKey="engagementScore" name={t("engagementScore")} domain={[0, 1]} tickFormatter={(v) => `${(v * 100).toFixed(0)}%`} />
+        <YAxis dataKey="purchaseProbability" name={t("purchaseProbability")} domain={[0, 1]} tickFormatter={(v) => `${(v * 100).toFixed(0)}%`} />
         <ChartTooltip content={<ChartTooltipContent />} />
-        <Scatter name="Users" data={engagementData} fill="#4f46e5">
+        <Scatter name={t("users")} data={engagementData} fill="#4f46e5">
           {engagementData.map((entry, index) => (
             <Cell key={`cell-${index}`} fill={entry.converted ? "#4f46e5" : "#e2e8f0"} />
           ))}
@@ -126,11 +142,12 @@ export function EngagementScatterChart() {
   )
 }
 
-const sentimentChartConfig = {
-  conversionRate: { label: "Conversion Rate", color: "#4f46e5" },
-} satisfies ChartConfig
-
 export function SentimentLineChart() {
+  const { t } = useLanguage()
+  const sentimentChartConfig = {
+    conversionRate: { label: t("conversionRateLabel"), color: "#4f46e5" },
+  } satisfies ChartConfig
+
   return (
     <ChartContainer config={sentimentChartConfig} className="h-[300px]">
       <LineChart data={sentimentData}>
@@ -144,12 +161,13 @@ export function SentimentLineChart() {
   )
 }
 
-const trafficChartConfig = {
-  conversionRate: { label: "Conversion Rate", color: "#4f46e5" },
-  revenue: { label: "Revenue", color: "#818cf8" },
-} satisfies ChartConfig
-
 export function TrafficSourceBarChart() {
+  const { t } = useLanguage()
+  const trafficChartConfig = {
+    conversionRate: { label: t("conversionRateLabel"), color: "#4f46e5" },
+    revenue: { label: t("revenue"), color: "#818cf8" },
+  } satisfies ChartConfig
+
   return (
     <ChartContainer config={trafficChartConfig} className="h-[300px]">
       <BarChart data={trafficSourceData}>
@@ -164,11 +182,12 @@ export function TrafficSourceBarChart() {
   )
 }
 
-const timeChartConfig = {
-  conversionRate: { label: "Conversion Rate", color: "#4f46e5" },
-} satisfies ChartConfig
-
 export function TimeAnalysisLineChart() {
+  const { t } = useLanguage()
+  const timeChartConfig = {
+    conversionRate: { label: t("conversionRateLabel"), color: "#4f46e5" },
+  } satisfies ChartConfig
+
   return (
     <ChartContainer config={timeChartConfig} className="h-[300px]">
       <LineChart data={timeDataHourly}>
@@ -176,7 +195,7 @@ export function TimeAnalysisLineChart() {
         <XAxis dataKey="hour" tickFormatter={(v) => `${v}:00`} />
         <YAxis tickFormatter={(v) => `${(v * 100).toFixed(0)}%`} />
         <ChartTooltip content={<ChartTooltipContent />} />
-        <ReferenceLine y={0.35} stroke="#ef4444" strokeDasharray="3 3" label="Avg" />
+        <ReferenceLine y={0.35} stroke="#ef4444" strokeDasharray="3 3" label={t("average")} />
         <Line type="monotone" dataKey="conversionRate" stroke="#4f46e5" strokeWidth={2} dot={{ fill: "#4f46e5" }} />
       </LineChart>
     </ChartContainer>

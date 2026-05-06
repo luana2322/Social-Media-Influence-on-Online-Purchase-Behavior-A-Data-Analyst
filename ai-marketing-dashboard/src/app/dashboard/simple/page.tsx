@@ -22,9 +22,9 @@ export default function SimpleDashboardPage() {
         </div>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Megaphone className="h-4 w-4" />
-          <span>Updated 2 min ago</span>
+          <span>{t("updatedMinAgo")}</span>
           <Sparkles className="h-4 w-4 text-yellow-500 ml-2" />
-          <span>AI-powered</span>
+          <span>{t("aiPowered")}</span>
         </div>
       </div>
 

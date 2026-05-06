@@ -40,7 +40,7 @@ function ChatbotContent() {
     } catch (error) {
       setMessages((prev) => [...prev, {
         role: "ai" as MessageRole,
-        content: "Error: Unable to get response from chatbot."
+        content: t("chatbotError")
       }])
     } finally {
       setLoading(false)

@@ -7,9 +7,12 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { uploadDataset } from "@/lib/api"
 import { useRouter } from "next/navigation"
+import { useLanguage } from "@/i18n/LanguageProvider"
 
 export function UploadDropzone() {
   const router = useRouter()
+  const { t, language } = useLanguage()
+  const isVi = language === "vi"
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -35,7 +38,7 @@ export function UploadDropzone() {
       const result = await uploadDataset(acceptedFiles[0])
       router.push(`/jobs/${result.jobId}`)
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Upload failed")
+      setError(err instanceof Error ? err.message : t("uploadFailed"))
     } finally {
       setUploading(false)
     }
@@ -53,11 +56,11 @@ export function UploadDropzone() {
           <input {...getInputProps()} />
           <UploadCloud className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
           {isDragActive ? (
-            <p className="text-primary font-medium">Drop the CSV file here...</p>
+            <p className="text-primary font-medium">{t("dropHere")}</p>
           ) : (
             <>
-              <p className="font-medium mb-1">Drag & drop a CSV file here</p>
-              <p className="text-sm text-muted-foreground">or click to browse (max 1M rows)</p>
+              <p className="font-medium mb-1">{t("dragDrop")}</p>
+              <p className="text-sm text-muted-foreground">{t("orClick")}</p>
             </>
           )}
         </div>
@@ -88,10 +91,10 @@ export function UploadDropzone() {
           {uploading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Uploading...
+              {t("uploading")}
             </>
           ) : (
-            "Run Prediction"
+            t("runPrediction")
           )}
         </Button>
       </CardContent>

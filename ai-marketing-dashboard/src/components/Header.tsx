@@ -80,12 +80,11 @@ export function Header() {
           <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">
             J
           </div>
-          <span>John Doe</span>
+          <span>{t("johnDoe")}</span>
         </div>
       </div>
     </header>
   );
 }
 
-// Import needed components
 import { Search, Bell } from "lucide-react";

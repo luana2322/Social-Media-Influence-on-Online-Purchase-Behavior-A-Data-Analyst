@@ -21,9 +21,9 @@ export default function DashboardPage() {
         <h1 className="text-2xl font-bold tracking-tight">{t("dashboard")}</h1>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Brain className="h-4 w-4" />
-          <span>Model: XGBoost v1.1.0</span>
+          <span>{t("modelVersion")}</span>
           <Sparkles className="h-4 w-4 text-yellow-500 ml-2" />
-          <span>Last updated: 2 min ago</span>
+          <span>{t("lastUpdated")}</span>
         </div>
       </div>
 

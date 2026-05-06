@@ -13,15 +13,14 @@ const levelColor = {
 }
 
 export function SimpleBestTime() {
-  const { language } = useLanguage()
-  const isVi = language === "vi"
+  const { t } = useLanguage()
 
   return (
     <Card className="rounded-2xl shadow-sm">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Clock className="h-5 w-5 text-primary" />
-          {isVi ? "Thời điểm bán hàng tốt nhất" : "Best Time to Sell"}
+          {t("bestTimeToSell")}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -30,18 +29,18 @@ export function SimpleBestTime() {
             <Moon className="h-6 w-6 text-red-600" />
           </div>
           <div>
-            <p className="text-sm text-muted-foreground">{isVi ? "Thời điểm bán hàng tốt nhất" : "Best time to sell"}</p>
-            <p className="text-2xl font-bold text-red-600">{isVi ? bestTimeData.bestHourVi : bestTimeData.bestHour}</p>
-            <p className="text-sm text-red-600">{bestTimeData.peakConversion} {isVi ? "tỷ lệ chuyển đổi" : "conversion rate"}</p>
+            <p className="text-sm text-muted-foreground">{t("bestTimeToSell")}</p>
+            <p className="text-2xl font-bold text-red-600">{bestTimeData.bestHourVi}</p>
+            <p className="text-sm text-red-600">{bestTimeData.peakConversion} {t("conversionRate")}</p>
           </div>
         </div>
 
         <div>
-          <p className="text-sm font-semibold mb-3">{isVi ? "Chuyển đổi theo thời gian:" : "Conversion by time:"}</p>
+          <p className="text-sm font-semibold mb-3">{t("conversionByTime")}</p>
           <div className="space-y-2">
             {bestTimeData.timeSlots.map((slot) => (
               <div key={slot.time} className="flex items-center gap-3">
-                <span className="text-xs text-muted-foreground w-16">{isVi ? slot.timeVi : slot.time}</span>
+                <span className="text-xs text-muted-foreground w-16">{slot.timeVi}</span>
                 <div className="flex-1 bg-accent rounded-full h-6 relative">
                   <div
                     className={`h-6 rounded-full ${
@@ -61,11 +60,9 @@ export function SimpleBestTime() {
         </div>
 
         <div className="p-4 bg-accent/50 rounded-2xl">
-          <p className="text-sm font-medium">{isVi ? "💡 Đề xuất:" : "💡 Recommendation:"}</p>
+          <p className="text-sm font-medium">{t("recommendation")}</p>
           <p className="text-sm text-muted-foreground mt-1">
-            {isVi
-              ? "Chạy quảng cáo và gửi email từ 7-9 tối khi khách hàng có nhiều khả năng mua nhất."
-              : "Run ads and send emails between 7-9 PM when customers are most likely to buy."}
+            {t("runAdsEvening")}
           </p>
         </div>
       </CardContent>

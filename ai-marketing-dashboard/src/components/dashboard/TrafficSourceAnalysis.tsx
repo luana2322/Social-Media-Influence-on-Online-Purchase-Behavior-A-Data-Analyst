@@ -4,8 +4,10 @@ import { TrafficSourceBarChart } from "@/components/Charts"
 import { trafficSourceData } from "@/lib/mock-data"
 import { Lightbulb, TrendingUp } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+import { useLanguage } from "@/i18n/LanguageProvider"
 
 export function TrafficSourceAnalysis() {
+  const { t } = useLanguage()
   const bestChannel = [...trafficSourceData].sort((a, b) => b.conversionRate - a.conversionRate)[0]
   const worstChannel = [...trafficSourceData].sort((a, b) => a.conversionRate - b.conversionRate)[0]
 
@@ -14,7 +16,7 @@ export function TrafficSourceAnalysis() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <TrendingUp className="h-5 w-5 text-primary" />
-          Traffic Source Analysis
+          {t("trafficSourceAnalysis")}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -25,13 +27,10 @@ export function TrafficSourceAnalysis() {
               <Lightbulb className="h-4 w-4 text-yellow-500 mt-0.5 shrink-0" />
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">
-                  <span className="font-semibold text-foreground">{bestChannel.source}</span> performs best
-                  with {(bestChannel.conversionRate * 100).toFixed(0)}% conversion rate.
-                  Allocate 40% more budget here for maximum ROI.
+                  <span className="font-semibold text-foreground">{bestChannel.source}</span> {t("performsBest").replace("%", `${(bestChannel.conversionRate * 100).toFixed(0)}%`)}
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  <span className="font-semibold text-foreground">{worstChannel.source}</span> underperforms
-                  at {(worstChannel.conversionRate * 100).toFixed(0)}%. Consider pausing or optimizing campaigns.
+                  <span className="font-semibold text-foreground">{worstChannel.source}</span> {t("underperforms").replace("%", `${(worstChannel.conversionRate * 100).toFixed(0)}%`)}
                 </p>
               </div>
             </div>
@@ -46,7 +45,7 @@ export function TrafficSourceAnalysis() {
                     {(source.conversionRate * 100).toFixed(0)}%
                   </Badge>
                 </div>
-                <p className="text-xs text-muted-foreground">{source.count.toLocaleString()} visitors</p>
+                <p className="text-xs text-muted-foreground">{source.count.toLocaleString()} {t("visitors")}</p>
               </div>
             ))}
           </div>

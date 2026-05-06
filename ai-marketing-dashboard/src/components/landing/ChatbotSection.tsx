@@ -4,18 +4,6 @@ import { useLanguage } from "@/i18n/LanguageProvider";
 import { Card, CardContent } from "@/components/ui/card";
 import { MessageSquare, Lightbulb, TrendingUp, Target } from "lucide-react";
 
-const exampleQuestions = [
-  "Which users should I target?",
-  "Why are conversions low?",
-  "What strategy should I use?",
-];
-
-const viQuestions = [
-  "Tôi nên nhắm đến nhóm người dùng nào?",
-  "Tại sao tỷ lệ chuyển đổi thấp?",
-  "Chiến lược nào tôi nên dùng?",
-];
-
 const mockResponse = {
   insight:
     "High-engagement users have 2x conversion rate compared to low-engagement users.",
@@ -41,7 +29,12 @@ const viResponse = {
 export default function ChatbotSection() {
   const { t, language } = useLanguage();
   const response = language === "vi" ? viResponse : mockResponse;
-  const questions = language === "vi" ? viQuestions : exampleQuestions;
+
+  const exampleQuestions = [
+    t("landing.chatbot.examples.0"),
+    t("landing.chatbot.examples.1"),
+    t("landing.chatbot.examples.2"),
+  ];
 
   return (
     <section className="py-20 bg-gray-50">
@@ -53,9 +46,7 @@ export default function ChatbotSection() {
               {t("landing.chatbot.title")}
             </h2>
             <p className="mt-4 text-lg text-muted-foreground">
-              {language === "vi"
-                ? "Nhận thông tin chi tiết từ AI với 4 phần:"
-                : "Get instant marketing insights with 4-section responses:"}
+              {t("getInsightsWith")}
             </p>
 
             <div className="mt-8 space-y-4">
@@ -65,12 +56,10 @@ export default function ChatbotSection() {
                 </div>
                 <div>
                   <p className="font-semibold text-gray-900">
-                    {language === "vi" ? "Thông tin" : "Insight"}
+                    {t("chatbotInsightTitle")}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {language === "vi"
-                      ? "Quan sát dựa trên dữ liệu"
-                      : "Data-driven observation"}
+                    {t("dataDriven")}
                   </p>
                 </div>
               </div>
@@ -81,12 +70,10 @@ export default function ChatbotSection() {
                 </div>
                 <div>
                   <p className="font-semibold text-gray-900">
-                    {language === "vi" ? "Giải thích" : "Explanation"}
+                    {t("chatbotExplanationTitle")}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {language === "vi"
-                      ? "Lý do đằng sau thông tin"
-                      : "Clear reasoning behind the insight"}
+                    {t("clearReasoning")}
                   </p>
                 </div>
               </div>
@@ -97,12 +84,10 @@ export default function ChatbotSection() {
                 </div>
                 <div>
                   <p className="font-semibold text-gray-900">
-                    {language === "vi" ? "Chiến lược" : "Strategy"}
+                    {t("chatbotStrategyTitle")}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {language === "vi"
-                      ? "Kế hoạch hành động"
-                      : "Actionable marketing plan"}
+                    {t("actionablePlan")}
                   </p>
                 </div>
               </div>
@@ -111,10 +96,10 @@ export default function ChatbotSection() {
             {/* Example Questions */}
             <div className="mt-8">
               <p className="mb-3 font-semibold text-gray-900">
-                {language === "vi" ? "Câu hỏi mẫu:" : "Example questions:"}
+                {t("exampleQuestions")}
               </p>
               <ul className="space-y-2">
-                {questions.map((q, i) => (
+                {exampleQuestions.map((q, i) => (
                   <li
                     key={i}
                     className="flex items-center gap-2 text-sm text-muted-foreground"
@@ -137,10 +122,10 @@ export default function ChatbotSection() {
                 </div>
                 <div>
                   <p className="font-semibold text-gray-900">
-                    {language === "vi" ? "Chatbot AI" : "AI Marketing Chatbot"}
+                    {t("landing.features.chatbot.title")}
                   </p>
                   <p className="text-xs text-green-600">
-                    {language === "vi" ? "Đang hoạt động" : "Online"}
+                    {t("chatbotOnline")}
                   </p>
                 </div>
               </div>
@@ -149,7 +134,7 @@ export default function ChatbotSection() {
               <div className="space-y-4">
                 <div className="rounded-lg bg-blue-50 p-4">
                   <p className="font-semibold text-blue-900">
-                    {language === "vi" ? "Thông tin:" : "Insight:"}
+                    {t("chatbotInsightTitle")}:
                   </p>
                   <p className="mt-1 text-sm text-blue-800">
                     {response.insight}
@@ -158,7 +143,7 @@ export default function ChatbotSection() {
 
                 <div className="rounded-lg bg-purple-50 p-4">
                   <p className="font-semibold text-purple-900">
-                    {language === "vi" ? "Giải thích:" : "Explanation:"}
+                    {t("chatbotExplanationTitle")}:
                   </p>
                   <p className="mt-1 text-sm text-purple-800">
                     {response.explanation}
@@ -167,7 +152,7 @@ export default function ChatbotSection() {
 
                 <div className="rounded-lg bg-green-50 p-4">
                   <p className="font-semibold text-green-900">
-                    {language === "vi" ? "Chiến lược:" : "Strategy:"}
+                    {t("chatbotStrategyTitle")}:
                   </p>
                   <p className="mt-1 text-sm text-green-800">
                     {response.strategy}
@@ -176,7 +161,7 @@ export default function ChatbotSection() {
 
                 <div className="rounded-lg bg-orange-50 p-4">
                   <p className="font-semibold text-orange-900">
-                    {language === "vi" ? "Đề xuất:" : "Recommendation:"}
+                    {t("chatbotRecommendationTitle")}:
                   </p>
                   <p className="mt-1 text-sm text-orange-800">
                     {response.recommendation}
@@ -188,7 +173,7 @@ export default function ChatbotSection() {
               <div className="mt-4 flex items-center gap-2 text-muted-foreground">
                 <div className="h-4 w-0.5 animate-pulse bg-blue-600" />
                 <span className="text-sm">
-                  {language === "vi" ? "Đang nhập..." : "Typing..."}
+                  {t("typing")}
                 </span>
               </div>
             </CardContent>

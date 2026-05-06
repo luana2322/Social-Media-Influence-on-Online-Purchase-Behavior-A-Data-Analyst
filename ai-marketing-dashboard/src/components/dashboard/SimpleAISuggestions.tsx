@@ -11,16 +11,27 @@ const iconMap = {
   "⏰": Clock,
 }
 
+const textKeyMap: Record<string, string> = {
+  "Focus on 17,500 ready-to-buy customers today": "focusReadyCustomers",
+  "Interested customers need follow-up content": "needFollowUp",
+  "Evening promotions get 48% more sales": "eveningPromotions",
+}
+
+const actionKeyMap: Record<string, string> = {
+  "Send flash sale emails now": "sendFlashSale",
+  "Start 5-day email nurture series": "startEmailSeries",
+  "Schedule ads for 7-9 PM": "scheduleAds",
+}
+
 export function SimpleAISuggestions() {
-  const { language } = useLanguage()
-  const isVi = language === "vi"
+  const { t } = useLanguage()
 
   return (
     <Card className="rounded-2xl shadow-sm border-l-4 border-l-yellow-400 bg-yellow-50/50">
       <CardContent className="pt-6">
         <div className="flex items-center gap-2 mb-4">
           <Lightbulb className="h-5 w-5 text-yellow-500" />
-          <h3 className="font-semibold text-lg">{isVi ? "Gợi ý từ AI" : "AI Suggestions for You"}</h3>
+          <h3 className="font-semibold text-lg">{t("aiSuggestions")}</h3>
         </div>
         <div className="space-y-3">
           {aiSuggestions.map((suggestion, index) => {
@@ -31,9 +42,9 @@ export function SimpleAISuggestions() {
                   <Icon className="h-5 w-5 text-yellow-600" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm font-medium">{isVi ? suggestion.textVi : suggestion.text}</p>
+                  <p className="text-sm font-medium">{t(textKeyMap[suggestion.text] || suggestion.text)}</p>
                   <Button size="sm" variant="outline" className="mt-2 rounded-2xl">
-                    {isVi ? suggestion.actionVi : suggestion.action}
+                    {t(actionKeyMap[suggestion.action] || suggestion.action)}
                     <ArrowRight className="h-3 w-3 ml-2" />
                   </Button>
                 </div>

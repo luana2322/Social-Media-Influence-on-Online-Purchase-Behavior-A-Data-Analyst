@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Brain, Users, MessageSquare, BarChart3 } from "lucide-react";
 
 export default function FeaturesSection() {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
 
   return (
     <section className="py-20 bg-white">
@@ -21,10 +21,10 @@ export default function FeaturesSection() {
               <Brain className="h-8 w-8" />
             </div>
             <h3 className="mb-2 text-xl font-semibold text-gray-900">
-              {language === "vi" ? "Dự đoán mua hàng" : t("landing.features.prediction.title")}
+              {t("landing.features.prediction.title")}
             </h3>
             <p className="text-muted-foreground">
-              {language === "vi" ? "Mô hình ML dự đoán ai sẽ mua với độ chính xác 95.4%" : t("landing.features.prediction.desc")}
+              {t("landing.features.prediction.desc")}
             </p>
           </div>
 
@@ -34,10 +34,10 @@ export default function FeaturesSection() {
               <Users className="h-8 w-8" />
             </div>
             <h3 className="mb-2 text-xl font-semibold text-gray-900">
-              {language === "vi" ? "Phân khúc khách hàng" : t("landing.features.segmentation.title")}
+              {t("landing.features.segmentation.title")}
             </h3>
             <p className="text-muted-foreground">
-              {language === "vi" ? "Tự động phân nhóm Cao/Trung bình/Thấp" : t("landing.features.segmentation.desc")}
+              {t("landing.features.segmentation.desc")}
             </p>
           </div>
 
@@ -47,10 +47,10 @@ export default function FeaturesSection() {
               <MessageSquare className="h-8 w-8" />
             </div>
             <h3 className="mb-2 text-xl font-semibold text-gray-900">
-              {language === "vi" ? "Chatbot AI Marketing" : t("landing.features.chatbot.title")}
+              {t("landing.features.chatbot.title")}
             </h3>
             <p className="text-muted-foreground">
-              {language === "vi" ? "Hỏi dữ liệu như ChatGPT - nhận chiến lược ngay" : t("landing.features.chatbot.desc")}
+              {t("landing.features.chatbot.desc")}
             </p>
           </div>
 
@@ -60,10 +60,10 @@ export default function FeaturesSection() {
               <BarChart3 className="h-8 w-8" />
             </div>
             <h3 className="mb-2 text-xl font-semibold text-gray-900">
-              {language === "vi" ? "Bảng điều khiển" : t("landing.features.analytics.title")}
+              {t("landing.features.analytics.title")}
             </h3>
             <p className="text-muted-foreground">
-              {language === "vi" ? "Trực quan hóa xu hướng và theo dõi hiệu suất" : t("landing.features.analytics.desc")}
+              {t("landing.features.analytics.desc")}
             </p>
           </div>
         </div>

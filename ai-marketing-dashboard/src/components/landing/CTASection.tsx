@@ -7,7 +7,7 @@ import { ArrowDown, Upload } from "lucide-react";
 
 export default function CTASection() {
   const router = useRouter();
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
 
   const handleTryDemo = () => {
     document
@@ -23,12 +23,10 @@ export default function CTASection() {
     <section className="bg-muted/50 py-20">
       <div className="container mx-auto px-4 text-center sm:px-6 lg:px-8">
         <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">
-          {language === "vi" ? "Bắt đầu dự đoán ngay hôm nay" : "Start predicting your customers today"}
+          {t("landing.cta.headline")}
         </h2>
         <p className="mt-4 text-lg text-muted-foreground">
-          {language === "vi"
-            ? "Tham gia 500+ nhà tiếp thị đang sử dụng AI để tăng 27% chuyển đổi"
-            : "Join 500+ marketers using AI to boost conversions by 27%"}
+          {t("landing.cta.subheadline")}
         </p>
 
         <div className="mt-10 flex items-center justify-center gap-4">
@@ -37,7 +35,7 @@ export default function CTASection() {
             onClick={handleTryDemo}
             className="rounded-full px-8 py-6 text-lg"
           >
-            {language === "vi" ? "Thử Demo" : "Try Demo"}
+            {t("landing.cta.tryDemo")}
             <ArrowDown className="ml-2 h-5 w-5" />
           </Button>
 
@@ -48,7 +46,7 @@ export default function CTASection() {
             className="rounded-full px-8 py-6 text-lg"
           >
             <Upload className="mr-2 h-5 w-5" />
-            {language === "vi" ? "Bắt đầu ngay" : "Get Started"}
+            {t("landing.cta.getStarted")}
           </Button>
         </div>
       </div>

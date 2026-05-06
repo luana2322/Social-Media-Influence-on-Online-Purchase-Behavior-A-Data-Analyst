@@ -4,7 +4,7 @@ import { useLanguage } from "@/i18n/LanguageProvider";
 import { Badge } from "@/components/ui/badge";
 
 export default function SocialProof() {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
 
   return (
     <section className="py-20 bg-white">
@@ -12,7 +12,7 @@ export default function SocialProof() {
         {/* Tech Stack */}
         <div className="text-center">
           <p className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-            {language === "vi" ? "Công nghệ xây dựng" : "Built With"}
+            {t("landing.socialProof.builtWith")}
           </p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
             <Badge variant="secondary" className="rounded-full px-4 py-2 text-sm">
@@ -35,21 +35,21 @@ export default function SocialProof() {
           <div className="text-center">
             <p className="text-4xl font-bold text-blue-600">1M+</p>
             <p className="mt-2 text-sm text-muted-foreground">
-              {language === "vi" ? "Dòng dữ liệu xử lý" : "Rows processed"}
+              {t("landing.socialProof.stats.rows")}
             </p>
           </div>
 
           <div className="text-center">
             <p className="text-4xl font-bold text-purple-600">95.4%</p>
             <p className="mt-2 text-sm text-muted-foreground">
-              {language === "vi" ? "Độ chính xác dự đoán" : "Prediction accuracy"}
+              {t("landing.socialProof.stats.accuracy")}
             </p>
           </div>
 
           <div className="text-center">
             <p className="text-4xl font-bold text-green-600">500+</p>
             <p className="mt-2 text-sm text-muted-foreground">
-              {language === "vi" ? "Nhà tiếp thị tin dùng" : "Marketers trust us"}
+              {t("landing.socialProof.stats.users")}
             </p>
           </div>
         </div>

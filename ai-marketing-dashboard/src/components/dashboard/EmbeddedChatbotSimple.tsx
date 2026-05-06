@@ -17,25 +17,23 @@ interface Message {
   responseType?: ResponseType
 }
 
-const responseTypeConfig = {
-  insight: { icon: Lightbulb, label: "Quick Insight", color: "bg-yellow-100 text-yellow-700" },
-  explanation: { icon: BookOpen, label: "Why This Happens", color: "bg-blue-100 text-blue-700" },
-  strategy: { icon: Target, label: "Action Plan", color: "bg-purple-100 text-purple-700" },
-  recommendation: { icon: Sparkles, label: "What to Do", color: "bg-green-100 text-green-700" },
-}
-
 export function EmbeddedChatbotSimple() {
-  const { language } = useLanguage()
+  const { t, language } = useLanguage()
   const isVi = language === "vi"
 
   const [messages, setMessages] = useState<Message[]>([
-    { role: "ai", content: isVi
-        ? "Xin chào! Tôi là trợ lý marketing của bạn. Hãy hỏi tôi cần làm gì để tăng doanh số, tôi sẽ đưa ra lời khuyên đơn giản và thực tế."
-        : "Hi! I'm your marketing assistant. Ask me what to do to increase sales, and I'll give you simple, actionable advice.", responseType: "insight" },
+    { role: "ai", content: t("greetingMessage"), responseType: "insight" },
   ])
   const [input, setInput] = useState("")
   const [loading, setLoading] = useState(false)
   const [activeType, setActiveType] = useState<ResponseType>("recommendation")
+
+  const responseTypeConfig = {
+    insight: { icon: Lightbulb, label: t("quickInsight"), color: "bg-yellow-100 text-yellow-700" },
+    explanation: { icon: BookOpen, label: t("whyThisHappens"), color: "bg-blue-100 text-blue-700" },
+    strategy: { icon: Target, label: t("actionPlan"), color: "bg-purple-100 text-purple-700" },
+    recommendation: { icon: Sparkles, label: t("whatToDo"), color: "bg-green-100 text-green-700" },
+  }
 
   const handleSend = async () => {
     if (!input.trim() || loading) return
@@ -45,7 +43,7 @@ export function EmbeddedChatbotSimple() {
     setLoading(true)
 
     setTimeout(() => {
-      const responses = {
+      const responses: Record<ResponseType, string> = {
         insight: isVi
           ? `Câu hỏi hay! ${userQuestion.toLowerCase().includes("sẵn") || userQuestion.toLowerCase().includes("mua")
               ? "Bạn có 17,500 khách hàng đã sẵn sàng mua ngay bây giờ. Họ đang tích cực mua sắm trên trang web của bạn."
@@ -98,9 +96,9 @@ export function EmbeddedChatbotSimple() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Bot className="h-5 w-5 text-primary" />
-          Ask Your Marketing Assistant
+          {t("askMarketingAssistant")}
         </CardTitle>
-        <p className="text-sm text-muted-foreground">{isVi ? "Nhận lời khuyên đơn giản để tăng doanh số" : "Get simple advice to increase your sales"}</p>
+        <p className="text-sm text-muted-foreground">{t("getAdvice")}</p>
         <div className="flex gap-2 flex-wrap mt-2">
           {(Object.keys(responseTypeConfig) as ResponseType[]).map((type) => {
             const config = responseTypeConfig[type]
@@ -159,7 +157,7 @@ export function EmbeddedChatbotSimple() {
               <div className="flex h-8 w-8 items-center justify-center rounded-2xl bg-accent">
                 <Bot className="h-4 w-4" />
               </div>
-              <div className="bg-accent rounded-2xl rounded-tl-none p-3 text-sm">Thinking...</div>
+              <div className="bg-accent rounded-2xl rounded-tl-none p-3 text-sm">{t("thinking")}</div>
             </div>
           )}
         </div>
@@ -168,7 +166,7 @@ export function EmbeddedChatbotSimple() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSend()}
-            placeholder={isVi ? "Hỏi: Tôi nên làm gì để tăng doanh số?" : "Ask: What should I do to increase sales?"}
+            placeholder={t("chatPlaceholder")}
             className="rounded-2xl"
             disabled={loading}
           />

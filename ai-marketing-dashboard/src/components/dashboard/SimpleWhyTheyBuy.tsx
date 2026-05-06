@@ -13,20 +13,35 @@ const iconMap = {
   "Mobile-friendly": Smartphone,
 }
 
-const impactColor = {
-  High: "bg-red-100 text-red-700 border-red-200",
-  Medium: "bg-yellow-100 text-yellow-700 border-yellow-200",
-  Low: "bg-green-100 text-green-700 border-green-200",
+const reasonKeyMap: Record<string, string> = {
+  "More site activity": "moreSiteActivity",
+  "Longer visits": "longerVisits",
+  "Positive feedback": "positiveFeedback",
+  "Repeat visitors": "repeatVisitors",
+  "Mobile-friendly": "mobileFriendly",
+}
+
+const descKeyMap: Record<string, string> = {
+  "Customers who click more and visit more pages buy 3x more": "clickMoreBuy3x",
+  "Customers who stay 10+ minutes are very likely to purchase": "stay10Min",
+  "Customers with good experience buy 2x more than unhappy ones": "goodExperience2x",
+  "Customers who bought before are easier to sell to again": "boughtBefore",
+  "Customers on mobile devices convert well with simple checkout": "mobileConvert",
+}
+
+const impactKeyMap: Record<string, string> = {
+  High: "highImpact",
+  Medium: "mediumImpact",
+  Low: "lowImpact",
 }
 
 export function SimpleWhyTheyBuy() {
-  const { language } = useLanguage()
-  const isVi = language === "vi"
+  const { t } = useLanguage()
 
   return (
     <Card className="rounded-2xl shadow-sm">
       <CardHeader>
-        <CardTitle>{isVi ? "Tại sao khách hàng mua" : "Why Customers Buy"}</CardTitle>
+        <CardTitle>{t("whyCustomersBuy")}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
@@ -39,12 +54,12 @@ export function SimpleWhyTheyBuy() {
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
-                    <h4 className="font-semibold text-sm">{isVi ? item.reasonVi : item.reason}</h4>
-                    <Badge className={`rounded-2xl text-xs ${impactColor[item.impact as keyof typeof impactColor]}`}>
-                      {item.impact} Impact
+                    <h4 className="font-semibold text-sm">{t(reasonKeyMap[item.reason] || item.reason)}</h4>
+                    <Badge className={`rounded-2xl text-xs ${impactKeyMap[item.impact] ? `bg-${item.impact === "High" ? "red" : item.impact === "Medium" ? "yellow" : "green"}-100 text-${item.impact === "High" ? "red" : item.impact === "Medium" ? "yellow" : "green"}-700 border-${item.impact === "High" ? "red" : item.impact === "Medium" ? "yellow" : "green"}-200` : ""}`}>
+                      {t(impactKeyMap[item.impact])}
                     </Badge>
                   </div>
-                  <p className="text-sm text-muted-foreground">{isVi ? item.descriptionVi : item.description}</p>
+                  <p className="text-sm text-muted-foreground">{t(descKeyMap[item.description] || item.description)}</p>
                 </div>
               </div>
             )

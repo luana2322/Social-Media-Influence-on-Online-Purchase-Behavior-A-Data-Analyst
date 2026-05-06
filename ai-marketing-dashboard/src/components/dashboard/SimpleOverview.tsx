@@ -11,9 +11,20 @@ const iconMap = {
   DollarSign: DollarSign,
 }
 
+const titleKeyMap: Record<string, string> = {
+  "Customers Analyzed": "customersAnalyzed",
+  "Likely to Buy": "likelyToBuy",
+  "Revenue Opportunity": "revenueOpp",
+}
+
+const insightKeyMap: Record<string, string> = {
+  "More customers this month": "moreCustomersThisMonth",
+  "35% are ready to purchase": "readyToPurchase",
+  "Potential sales if you act now": "potentialSales",
+}
+
 export function SimpleOverview() {
-  const { language } = useLanguage()
-  const isVi = language === "vi"
+  const { t } = useLanguage()
 
   return (
     <div className="grid gap-6 sm:grid-cols-3">
@@ -23,7 +34,7 @@ export function SimpleOverview() {
           <Card key={stat.title} className="rounded-2xl shadow-sm hover:shadow-md transition-shadow border-l-4 border-l-primary">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                {isVi ? stat.titleVi : stat.title}
+                {t(titleKeyMap[stat.title] || stat.title)}
               </CardTitle>
               <Icon className="h-5 w-5 text-primary" />
             </CardHeader>
@@ -42,7 +53,7 @@ export function SimpleOverview() {
                 </span>
               </div>
               <p className="text-sm text-muted-foreground mt-3 pt-3 border-t">
-                {isVi ? stat.insightVi : stat.insight}
+                {t(insightKeyMap[stat.insight] || stat.insight)}
               </p>
             </CardContent>
           </Card>

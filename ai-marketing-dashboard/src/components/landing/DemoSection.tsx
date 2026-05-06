@@ -55,10 +55,9 @@ export default function DemoSection() {
   const getSegmentBadge = (segment: string) => {
     const variant =
       segment === "High" ? "default" : segment === "Medium" ? "secondary" : "destructive";
-    const viSegment =
-      segment === "High" ? "Cao" : segment === "Medium" ? "Trung bình" : "Thấp";
+    const segmentText = segment === "High" ? t("high") : segment === "Medium" ? t("medium") : t("low");
     return (
-      <Badge variant={variant}>{language === "vi" ? viSegment : segment}</Badge>
+      <Badge variant={variant}>{segmentText}</Badge>
     );
   };
 
@@ -67,12 +66,10 @@ export default function DemoSection() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">
-            {language === "vi" ? "Xem Demo Trực Tiếp" : "See It In Action"}
+            {t("landing.demo.title")}
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
-            {language === "vi"
-              ? "Không cần tải lên - xem kết quả mẫu ngay lập tức"
-              : "No upload required - see sample results instantly"}
+            {t("seeDemoSubtitle")}
           </p>
         </div>
 
@@ -84,7 +81,7 @@ export default function DemoSection() {
               className="rounded-full px-8 py-6 text-lg"
             >
               <Play className="mr-2 h-5 w-5" />
-              {language === "vi" ? "Thử Demo Ngay" : "Try Demo Dataset"}
+              {t("landing.demo.tryDemo")}
             </Button>
           </div>
         ) : (
@@ -93,22 +90,22 @@ export default function DemoSection() {
             <Card className="rounded-2xl">
               <CardHeader>
                 <CardTitle>
-                  {language === "vi" ? "Kết quả mẫu" : "Sample Results"}
+                  {t("sampleResults")}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>User ID</TableHead>
-                      <TableHead>
-                        {language === "vi" ? "Xác suất" : "Probability"}
-                      </TableHead>
-                      <TableHead>
-                        {language === "vi" ? "Phân khúc" : "Segment"}
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t("landing.demo.table.user_id")}</TableHead>
+                  <TableHead>
+                    {t("landing.demo.table.probability")}
+                  </TableHead>
+                  <TableHead>
+                    {t("landing.demo.table.segment")}
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
                   <TableBody>
                     {demoData.map((row) => (
                       <TableRow key={row.user_id}>
@@ -130,7 +127,7 @@ export default function DemoSection() {
             <Card className="rounded-2xl">
               <CardHeader>
                 <CardTitle>
-                  {language === "vi" ? "Phân bố phân khúc" : "Segment Distribution"}
+                  {t("segmentDistribution")}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -162,12 +159,10 @@ export default function DemoSection() {
         {showDemo && (
           <div className="mt-12 rounded-2xl bg-green-50 p-8 text-center">
             <p className="text-2xl font-bold text-green-600">
-              {language === "vi" ? "+27% Chuyển đổi" : "+27% Conversion Increase"}
+              {t("conversionIncrease")}
             </p>
             <p className="mt-2 text-muted-foreground">
-              {language === "vi"
-                ? "Khách hàng phân khúc Cao chuyển đổi gấp 2 lần"
-                : "High segment converts at 2x rate"}
+              {t("highSegmentConverts")}
             </p>
           </div>
         )}

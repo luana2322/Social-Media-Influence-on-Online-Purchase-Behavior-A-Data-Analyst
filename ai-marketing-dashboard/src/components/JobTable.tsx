@@ -15,9 +15,19 @@ import { useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
 import { listJobs, Job } from "@/lib/api"
 import { MessageSquare, BarChart3 } from "lucide-react"
+import { useLanguage } from "@/i18n/LanguageProvider"
+
+const statusKeyMap: Record<string, string> = {
+  completed: "completed",
+  processing: "processing",
+  failed: "failed",
+  pending: "pending",
+}
 
 export function RecentJobsTable() {
   const router = useRouter()
+  const { t, language } = useLanguage()
+  const isVi = language === "vi"
   const [mounted, setMounted] = useState(false)
   const [jobs, setJobs] = useState<Job[]>([])
   const [loading, setLoading] = useState(true)
@@ -47,14 +57,14 @@ export function RecentJobsTable() {
     }
     return (
       <Badge className={`${styles[status] || ""} rounded-2xl`}>
-        {status.charAt(0).toUpperCase() + status.slice(1)}
+        {t(statusKeyMap[status] || status)}
       </Badge>
     )
   }
 
   const formatDate = (dateStr: string) => {
     if (!mounted) return ""
-    return new Date(dateStr).toLocaleDateString("en-US")
+    return new Date(dateStr).toLocaleDateString(isVi ? "vi-VN" : "en-US")
   }
 
   const getDatasetName = (job: Job) => {
@@ -66,24 +76,24 @@ export function RecentJobsTable() {
   }
 
   if (loading) {
-    return <div className="text-center py-4">Loading jobs...</div>
+    return <div className="text-center py-4">{t("loadingJobs")}</div>
   }
 
   if (jobs.length === 0) {
-    return <div className="text-center py-4 text-muted-foreground">No analysis history found. Upload a CSV to start.</div>
+    return <div className="text-center py-4 text-muted-foreground">{t("noJobsFound")}</div>
   }
 
   return (
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Job ID</TableHead>
-          <TableHead>Dataset</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Progress</TableHead>
-          <TableHead>Records</TableHead>
-          <TableHead>Created At</TableHead>
-          <TableHead>Actions</TableHead>
+          <TableHead>{t("jobID")}</TableHead>
+          <TableHead>{t("dataset")}</TableHead>
+          <TableHead>{t("status")}</TableHead>
+          <TableHead>{t("progress")}</TableHead>
+          <TableHead>{t("records")}</TableHead>
+          <TableHead>{t("createdAt")}</TableHead>
+          <TableHead>{t("actions")}</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>

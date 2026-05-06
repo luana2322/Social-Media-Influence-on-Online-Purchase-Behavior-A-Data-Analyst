@@ -7,7 +7,7 @@ import { ArrowDown, Upload } from "lucide-react";
 
 export default function HeroSection() {
   const router = useRouter();
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
 
   const handleTryDemo = () => {
     document
@@ -26,17 +26,13 @@ export default function HeroSection() {
           {/* Pain + Solution Headline */}
           <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl md:text-6xl lg:text-7xl">
             <span className="block">
-              {language === "vi"
-                ? "Ngừng đoán ai sẽ mua hàng"
-                : "Stop guessing which customers will buy"}
+              {t("landing.hero.headline")}
             </span>
           </h1>
 
           {/* Outcome Subheadline */}
           <p className="mt-6 text-lg leading-8 text-gray-600 sm:text-xl sm:leading-9 md:text-2xl">
-            {language === "vi"
-              ? "Dự đoán hành vi mua hàng ngay lập tức với AI. Tăng 27% chuyển đổi với phân khúc khách hàng thông minh."
-              : "Predict purchase behavior instantly with AI. Increase conversions by 27% using intelligent customer segmentation."}
+            {t("landing.hero.subheadline")}
           </p>
 
           {/* CTAs */}
@@ -46,7 +42,7 @@ export default function HeroSection() {
               onClick={handleTryDemo}
               className="rounded-full px-8 py-6 text-lg"
             >
-              {language === "vi" ? "Thử Demo" : "Try Demo"}
+              {t("landing.hero.tryDemo")}
               <ArrowDown className="ml-2 h-5 w-5" />
             </Button>
 
@@ -57,15 +53,13 @@ export default function HeroSection() {
               className="rounded-full px-8 py-6 text-lg"
             >
               <Upload className="mr-2 h-5 w-5" />
-              {language === "vi" ? "Tải dữ liệu lên" : "Upload Your Data"}
+              {t("landing.hero.uploadData")}
             </Button>
           </div>
 
           {/* Social Proof */}
           <p className="mt-8 text-sm text-muted-foreground">
-            {language === "vi"
-              ? "Được tin dùng bởi 500+ nhà tiếp thị"
-              : "Trusted by 500+ marketers"}
+            {t("landing.hero.socialProof")}
           </p>
         </div>
       </div>
