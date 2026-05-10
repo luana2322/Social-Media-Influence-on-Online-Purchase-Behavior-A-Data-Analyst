@@ -1,69 +1,49 @@
 "use client"
-import { SimpleOverview } from "@/components/dashboard/SimpleOverview"
-import { SimpleCustomerGroups } from "@/components/dashboard/SimpleCustomerGroups"
-import { SimpleWhyTheyBuy } from "@/components/dashboard/SimpleWhyTheyBuy"
-import { SimpleBestTime } from "@/components/dashboard/SimpleBestTime"
-import { SimpleBestChannel } from "@/components/dashboard/SimpleBestChannel"
-import { SimpleAISuggestions } from "@/components/dashboard/SimpleAISuggestions"
+import { AiActionCenter } from "@/components/dashboard/AiActionCenter"
+import { BusinessOverview } from "@/components/dashboard/BusinessOverview"
+import { CustomerSegments } from "@/components/dashboard/CustomerSegments"
+import { AiInsights } from "@/components/dashboard/AiInsights"
+import { QuickActions } from "@/components/dashboard/QuickActions"
 import { EmbeddedChatbotSimple } from "@/components/dashboard/EmbeddedChatbotSimple"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Megaphone, Sparkles } from "lucide-react"
 import { useLanguage } from "@/i18n/LanguageProvider"
 
 export default function SimpleDashboardPage() {
   const { t } = useLanguage()
 
   return (
-    <div className="flex flex-col gap-6 max-w-7xl mx-auto">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">{t("simpleDashboard")}</h1>
-          <p className="text-muted-foreground mt-1">{t("simpleSubtitle")}</p>
-        </div>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Megaphone className="h-4 w-4" />
-          <span>{t("updatedMinAgo")}</span>
-          <Sparkles className="h-4 w-4 text-yellow-500 ml-2" />
-          <span>{t("aiPowered")}</span>
-        </div>
+    <div className="flex flex-col gap-8 max-w-7xl mx-auto">
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight">{t("simpleDashboard")}</h1>
+        <p className="text-muted-foreground mt-1">{t("simpleSubtitle")}</p>
       </div>
 
-      {/* Section 1: Overview */}
+      {/* Section A: AI Action Center */}
       <section>
-        <h2 className="text-xl font-semibold mb-4">{t("overview")}</h2>
-        <SimpleOverview />
+        <AiActionCenter />
       </section>
 
-      {/* Section 2: AI Suggestions (Most Important - at top) */}
+      {/* Section B: Business Overview */}
       <section>
-        <SimpleAISuggestions />
+        <BusinessOverview />
       </section>
 
-      {/* Section 3: Customer Groups (Most Important) */}
+      {/* Section C: Customer Segments */}
       <section>
-        <h2 className="text-xl font-semibold mb-4">{t("customerGroups")}</h2>
-        <SimpleCustomerGroups />
+        <CustomerSegments />
       </section>
 
-      {/* Section 4: Why Customers Buy */}
+      {/* Section D: AI Insights */}
       <section>
-        <h2 className="text-xl font-semibold mb-4">{t("whyCustomersBuy")}</h2>
-        <SimpleWhyTheyBuy />
+        <AiInsights />
       </section>
 
-      {/* Section 5: Best Time + Best Channel (2-col on lg) */}
-      <section className="grid gap-6 lg:grid-cols-2">
-        <div>
-          <h2 className="text-xl font-semibold mb-4">{t("bestTimeToSell")}</h2>
-          <SimpleBestTime />
-        </div>
-        <div>
-          <h2 className="text-xl font-semibold mb-4">{t("bestChannel")}</h2>
-          <SimpleBestChannel />
-        </div>
+      {/* Section E: Quick Actions */}
+      <section>
+        <QuickActions />
       </section>
 
-      {/* Section 6: Chatbot */}
+      {/* Chatbot */}
       <section>
         <h2 className="text-xl font-semibold mb-4">{t("askAssistant")}</h2>
         <EmbeddedChatbotSimple />
