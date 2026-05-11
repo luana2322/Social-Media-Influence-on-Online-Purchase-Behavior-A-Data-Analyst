@@ -1,23 +1,17 @@
-"use client";
-
-import HeroSection from "@/components/landing/HeroSection";
-import HowItWorks from "@/components/landing/HowItWorks";
-import DemoSection from "@/components/landing/DemoSection";
-import FeaturesSection from "@/components/landing/FeaturesSection";
-import ChatbotSection from "@/components/landing/ChatbotSection";
-import SocialProof from "@/components/landing/SocialProof";
-import CTASection from "@/components/landing/CTASection";
+import HeroSection from "@/components/landing/HeroSection"
+import DemoPreview from "@/components/landing/DemoPreview"
+import FeaturesSection from "@/components/landing/FeaturesSection"
+import ChatbotPreview from "@/components/landing/ChatbotPreview"
+import CTASection from "@/components/landing/CTASection"
 
 export default function HomePage() {
   return (
     <div className="min-h-screen">
       <HeroSection />
-      <HowItWorks />
-      <DemoSection />
+      <DemoPreview />
       <FeaturesSection />
-      <ChatbotSection />
-      <SocialProof />
+      <ChatbotPreview />
       <CTASection />
     </div>
-  );
+  )
 }

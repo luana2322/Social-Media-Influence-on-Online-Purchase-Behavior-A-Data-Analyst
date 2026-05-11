@@ -1,254 +1,209 @@
-// Existing data
-export const dashboardStats = [
-  { title: "Total Jobs", value: "142", icon: "Brain", change: "+12%", changeType: "positive" },
-  { title: "Processed Records", value: "1.2M", icon: "Database", change: "+8%", changeType: "positive" },
-  { title: "Model Accuracy", value: "94.7%", icon: "TrendingUp", change: "+2.1%", changeType: "positive" },
-  { title: "Active Users", value: "89", icon: "Users", change: "-3%", changeType: "negative" },
-];
+import type {
+  KpiCard,
+  AiInsight,
+  AudienceSegment,
+  Recommendation,
+  AnalysisResult,
+  SuggestionPrompt,
+  ChatResponseSection,
+} from "@/types"
 
-export const segmentationData = [
-  { name: "High", value: 35, fill: "#4f46e5" },
-  { name: "Medium", value: 45, fill: "#818cf8" },
-  { name: "Low", value: 20, fill: "#c7d2fe" },
-];
-
-export const predictionOverTime = [
-  { month: "Jan", predictions: 120 },
-  { month: "Feb", predictions: 210 },
-  { month: "Mar", predictions: 180 },
-  { month: "Apr", predictions: 240 },
-  { month: "May", predictions: 320 },
-  { month: "Jun", predictions: 280 },
-];
-
-export const fileColumns = [
-  { name: "customer_id", type: "string" },
-  { name: "age", type: "number" },
-  { name: "annual_income", type: "number" },
-  { name: "purchase_amount", type: "number" },
-  { name: "segment", type: "string" },
-  { name: "last_purchase_date", type: "date" },
-  { name: "email", type: "string" },
-  { name: "phone", type: "string" },
-];
-
-export const sampleData = [
-  { customer_id: "CUST_001", age: 34, annual_income: 85000, purchase_amount: 1200, segment: "High", last_purchase_date: "2026-04-15", email: "john@example.com", phone: "555-0100" },
-  { customer_id: "CUST_002", age: 28, annual_income: 52000, purchase_amount: 450, segment: "Medium", last_purchase_date: "2026-04-10", email: "jane@example.com", phone: "555-0101" },
-  { customer_id: "CUST_003", age: 45, annual_income: 120000, purchase_amount: 2100, segment: "High", last_purchase_date: "2026-04-20", email: "bob@example.com", phone: "555-0102" },
-  { customer_id: "CUST_004", age: 22, annual_income: 38000, purchase_amount: 180, segment: "Low", last_purchase_date: "2026-03-28", email: "alice@example.com", phone: "555-0103" },
-  { customer_id: "CUST_005", age: 31, annual_income: 67000, purchase_amount: 780, segment: "Medium", last_purchase_date: "2026-04-18", email: "charlie@example.com", phone: "555-0104" },
-  { customer_id: "CUST_006", age: 39, annual_income: 95000, purchase_amount: 1500, segment: "High", last_purchase_date: "2026-04-22", email: "diana@example.com", phone: "555-0105" },
-  { customer_id: "CUST_007", age: 26, annual_income: 45000, purchase_amount: 320, segment: "Low", last_purchase_date: "2026-04-05", email: "eve@example.com", phone: "555-0106" },
-  { customer_id: "CUST_008", age: 42, annual_income: 78000, purchase_amount: 920, segment: "Medium", last_purchase_date: "2026-04-19", email: "frank@example.com", phone: "555-0107" },
-  { customer_id: "CUST_009", age: 29, annual_income: 58000, purchase_amount: 510, segment: "Medium", last_purchase_date: "2026-04-12", email: "grace@example.com", phone: "555-0108" },
-  { customer_id: "CUST_010", age: 51, annual_income: 135000, purchase_amount: 2800, segment: "High", last_purchase_date: "2026-04-25", email: "henry@example.com", phone: "555-0109" },
-];
-
-// ==================== NEW DASHBOARD DATA ====================
-
-// KPI Stats with insights
-export const kpiStats = [
+export const kpiCards: KpiCard[] = [
   {
-    title: "Total Users Analyzed",
-    value: "50,000",
-    icon: "Users",
-    change: "+12%",
-    changeType: "positive" as const,
-    insight: "12% more than last batch"
-  },
-  {
-    title: "Predicted Buyers",
+    label: "Khách hàng có ý định cao",
     value: "17,500",
-    icon: "TrendingUp",
-    change: "+8%",
-    changeType: "positive" as const,
-    insight: "35% conversion rate projected"
+    change: "+12%",
+    trend: "up",
+    subtitle: "35% tổng số khách hàng",
   },
   {
-    title: "High-Intent Users",
-    value: "12,250",
-    icon: "Target",
-    change: "+15%",
-    changeType: "positive" as const,
-    insight: "Best segment for flash sales"
-  },
-  {
-    title: "Revenue Opportunity",
+    label: "Doanh thu dự kiến",
     value: "$2.4M",
-    icon: "DollarSign",
     change: "+22%",
-    changeType: "positive" as const,
-    insight: "Based on predicted AOV × users"
-  }
-];
-
-// Enhanced Segmentation Data
-export const enhancedSegmentationData = [
+    trend: "up",
+    subtitle: "Dựa trên AOV dự kiến",
+  },
   {
-    name: "High (≥0.8)",
-    value: 35,
-    fill: "#4f46e5",
+    label: "Tiềm năng chuyển đổi",
+    value: "35%",
+    change: "+8%",
+    trend: "up",
+    subtitle: "Người dùng sẵn sàng mua",
+  },
+  {
+    label: "Xu hướng tương tác",
+    value: "+12%",
+    change: "+5%",
+    trend: "up",
+    subtitle: "Cao hơn đợt trước",
+  },
+]
+
+export const aiInsights: AiInsight[] = [
+  {
+    id: "insight-1",
+    headline: "Người dùng TikTok chuyển đổi tốt hơn 31% sau 8PM",
+    body: "Lượng truy cập buổi tối từ TikTok cho thấy ý định mua hàng cao hơn đáng kể. Cân nhắc chuyển ngân sách quảng cáo buổi tối sang TikTok.",
+    impact: "high",
+    category: "opportunity",
+  },
+  {
+    id: "insight-2",
+    headline: "Khách quay lại mua gấp 3 lần",
+    body: "Khách truy cập lại có tỷ lệ chuyển đổi cao hơn nhiều. Hãy triển khai chiến dịch tiếp cận lại.",
+    impact: "high",
+    category: "opportunity",
+  },
+  {
+    id: "insight-3",
+    headline: "Cảm xúc tích cực thúc đẩy mua lại",
+    body: "Điểm cảm xúc cao tương quan mạnh với hành vi mua lại. Tập trung vào các sáng kiến hài lòng khách hàng.",
+    impact: "medium",
+    category: "trend",
+  },
+  {
+    id: "insight-4",
+    headline: "Email marketing có tỷ lệ chuyển đổi 28%",
+    body: "Email vượt trội hơn tất cả các kênh khác. Phân bổ lại 30% ngân sách quảng cáo sang chiến dịch email.",
+    impact: "high",
+    category: "opportunity",
+  },
+  {
+    id: "insight-5",
+    headline: "Người dùng di động chuyển đổi tốt gấp 2 lần với thanh toán đơn giản",
+    body: "Tỷ lệ bỏ giỏ hàng giảm đáng kể khi thanh toán có ít bước hơn. Tối ưu hóa quy trình thanh toán trên di động.",
+    impact: "medium",
+    category: "action",
+  },
+]
+
+export const audienceSegments: AudienceSegment[] = [
+  {
+    id: "hot",
+    name: "Khách nóng",
+    icon: "flame",
     count: 17500,
-    minProb: 0.8,
-    maxProb: 1.0,
-    description: "Users with very high purchase intent. Typically visited 5+ pages, spent 10+ mins, high sentiment.",
-    recommendedAction: "Send immediate discount or limited-time offer"
+    percentage: 35,
+    description: "Đang mua sắm tích cực. Đã xem 5+ trang, dành 10+ phút. Sẵn sàng mua trong vài ngày.",
+    action: "Gửi flash sale 24h qua email + SMS",
+    color: "#ef4444",
+    bgColor: "bg-red-50 dark:bg-red-950/20",
   },
   {
-    name: "Medium (0.71-0.8)",
-    value: 45,
-    fill: "#818cf8",
+    id: "warm",
+    name: "Khách ấm",
+    icon: "star",
     count: 22500,
-    minProb: 0.71,
-    maxProb: 0.79,
-    description: "Interested users who need a nudge. Moderate engagement, positive sentiment, comparison shopping.",
-    recommendedAction: "Nurture with educational content and social proof"
+    percentage: 45,
+    description: "Quan tâm và đang so sánh lựa chọn. Cần thúc đẩy bằng bằng chứng xã hội và nội dung giáo dục.",
+    action: "Gửi chuỗi nuôi dưỡng 5 ngày với đánh giá",
+    color: "#eab308",
+    bgColor: "bg-yellow-50 dark:bg-yellow-950/20",
   },
   {
-    name: "Low (<0.71)",
-    value: 20,
-    fill: "#c7d2fe",
+    id: "cold",
+    name: "Khách lạnh",
+    icon: "snowflake",
     count: 10000,
-    minProb: 0.0,
-    maxProb: 0.70,
-    description: "Low intent users. May be browsing, first-time visitors, or have low engagement scores.",
-    recommendedAction: "Retargeting ads and brand awareness campaigns"
-  }
-];
+    percentage: 20,
+    description: "Khách truy cập lần đầu và người dùng ít tương tác. Cần nhận biết thương hiệu trước khi mua.",
+    action: "Chạy quảng cáo tiếp cận lại và chiến dịch thương hiệu",
+    color: "#6b7280",
+    bgColor: "bg-gray-50 dark:bg-gray-950/20",
+  },
+]
 
-// SHAP Feature Importance
-export const shapData = [
-  { feature: "Engagement Score", importance: 0.32, description: "+32% to purchase probability" },
-  { feature: "Page Views", importance: 0.28, description: "+28% to purchase probability" },
-  { feature: "Session Duration", importance: 0.24, description: "+24% to purchase probability" },
-  { feature: "Sentiment Score", importance: 0.21, description: "+21% to purchase probability" },
-  { feature: "Previous Purchases", importance: 0.18, description: "+18% to purchase probability" },
-  { feature: "Income Level", importance: 0.15, description: "+15% to purchase probability" },
-  { feature: "Age Group", importance: 0.12, description: "+12% to purchase probability" },
-  { feature: "Traffic Source", importance: 0.10, description: "+10% to purchase probability" },
-  { feature: "Time on Site", importance: 0.08, description: "+8% to purchase probability" },
-  { feature: "Device Type", importance: 0.05, description: "+5% to purchase probability" }
-];
-
-// Engagement vs Purchase Probability Data
-export interface EngagementDataPoint {
-  engagementScore: number;
-  purchaseProbability: number;
-  converted: boolean;
-}
-
-export const engagementData: EngagementDataPoint[] = Array.from({ length: 50 }, (_, i) => {
-  const engagement = 0.1 + Math.random() * 0.9;
-  const prob = engagement * 0.6 + Math.random() * 0.3;
-  return {
-    engagementScore: Math.round(engagement * 100) / 100,
-    purchaseProbability: Math.round(prob * 100) / 100,
-    converted: prob > 0.71
-  };
-});
-
-// Sentiment vs Conversion Rate
-export const sentimentData = [
-  { sentimentScore: 0.1, conversionRate: 0.08 },
-  { sentimentScore: 0.2, conversionRate: 0.12 },
-  { sentimentScore: 0.3, conversionRate: 0.18 },
-  { sentimentScore: 0.4, conversionRate: 0.22 },
-  { sentimentScore: 0.5, conversionRate: 0.28 },
-  { sentimentScore: 0.6, conversionRate: 0.35 },
-  { sentimentScore: 0.7, conversionRate: 0.42 },
-  { sentimentScore: 0.8, conversionRate: 0.55 },
-  { sentimentScore: 0.9, conversionRate: 0.68 },
-  { sentimentScore: 1.0, conversionRate: 0.75 },
-];
-
-// Traffic Source Analysis
-export const trafficSourceData = [
-  { source: "Social Media", conversionRate: 0.23, count: 5000, revenue: 450000 },
-  { source: "Direct", conversionRate: 0.18, count: 3000, revenue: 320000 },
-  { source: "Organic Search", conversionRate: 0.15, count: 2500, revenue: 280000 },
-  { source: "Email", conversionRate: 0.28, count: 1500, revenue: 180000 },
-  { source: "Paid Ads", conversionRate: 0.12, count: 4000, revenue: 350000 },
-  { source: "Referral", conversionRate: 0.20, count: 1000, revenue: 120000 },
-];
-
-// Time Analysis (Hourly)
-export const timeDataHourly = [
-  { hour: 0, conversionRate: 0.05, transactionCount: 120 },
-  { hour: 1, conversionRate: 0.03, transactionCount: 80 },
-  { hour: 2, conversionRate: 0.02, transactionCount: 50 },
-  { hour: 3, conversionRate: 0.02, transactionCount: 40 },
-  { hour: 4, conversionRate: 0.03, transactionCount: 60 },
-  { hour: 5, conversionRate: 0.04, transactionCount: 90 },
-  { hour: 6, conversionRate: 0.08, transactionCount: 200 },
-  { hour: 7, conversionRate: 0.12, transactionCount: 350 },
-  { hour: 8, conversionRate: 0.18, transactionCount: 520 },
-  { hour: 9, conversionRate: 0.22, transactionCount: 680 },
-  { hour: 10, conversionRate: 0.25, transactionCount: 750 },
-  { hour: 11, conversionRate: 0.28, transactionCount: 820 },
-  { hour: 12, conversionRate: 0.30, transactionCount: 900 },
-  { hour: 13, conversionRate: 0.32, transactionCount: 950 },
-  { hour: 14, conversionRate: 0.35, transactionCount: 1050 },
-  { hour: 15, conversionRate: 0.38, transactionCount: 1150 },
-  { hour: 16, conversionRate: 0.36, transactionCount: 1100 },
-  { hour: 17, conversionRate: 0.34, transactionCount: 1020 },
-  { hour: 18, conversionRate: 0.40, transactionCount: 1200 },
-  { hour: 19, conversionRate: 0.42, transactionCount: 1250 },
-  { hour: 20, conversionRate: 0.45, transactionCount: 1350 },
-  { hour: 21, conversionRate: 0.48, transactionCount: 1400 },
-  { hour: 22, conversionRate: 0.35, transactionCount: 1050 },
-  { hour: 23, conversionRate: 0.15, transactionCount: 450 },
-];
-
-// Time Analysis (Daily)
-export const timeDataDaily = [
-  { day: "Mon", conversionRate: 0.32, transactionCount: 5000 },
-  { day: "Tue", conversionRate: 0.38, transactionCount: 5800 },
-  { day: "Wed", conversionRate: 0.35, transactionCount: 5400 },
-  { day: "Thu", conversionRate: 0.36, transactionCount: 5600 },
-  { day: "Fri", conversionRate: 0.42, transactionCount: 6500 },
-  { day: "Sat", conversionRate: 0.48, transactionCount: 7500 },
-  { day: "Sun", conversionRate: 0.28, transactionCount: 4200 },
-];
-
-// AI Insights
-export const aiInsights = [
-  "High-intent users increased by 12% compared to last batch - scale up retargeting budget",
-  "Users with high engagement but low sentiment are under-converted - improve post-purchase experience",
-  "Email marketing shows 28% conversion rate - highest ROI channel, increase frequency",
-];
-
-// Recommendations
-export const recommendations = [
+export const recommendations: Recommendation[] = [
   {
     id: "rec-1",
-    title: "Target High-Intent with Flash Sale",
-    description: "17,500 users with ≥80% purchase probability are ready to buy. Send limited-time 24h discount offer via email and SMS.",
-    expectedImpact: "High" as const,
-    priority: 1,
-    segment: "High"
+    title: "Nhắm Khách nóng với Flash Sale",
+    description: "17,500 khách hàng có ý định cao sẵn sàng mua. Triển khai chiến dịch giảm giá 24h qua email và SMS.",
+    impact: "high",
+    cta: "Triển khai",
   },
   {
     id: "rec-2",
-    title: "Nurture Medium-Intent via Content",
-    description: "22,500 medium-intent users need persuasion. Deploy 5-email educational series with customer testimonials and product demos.",
-    expectedImpact: "Medium" as const,
-    priority: 2,
-    segment: "Medium"
+    title: "Chuyển ngân sách quảng cáo sang tối",
+    description: "Chuyển đổi đỉnh 48% vào 7-9 PM. Phân bổ lại 40% ngân sách ban ngày sang khung giờ tối.",
+    impact: "high",
+    cta: "Điều chỉnh",
   },
   {
     id: "rec-3",
-    title: "Optimize Email Channel Budget",
-    description: "Email has 28% conversion rate (highest). Reallocate 30% of paid ads budget to email marketing automation tools.",
-    expectedImpact: "High" as const,
-    priority: 1,
-    channel: "Email"
+    title: "Tiếp cận lại khách quay lại",
+    description: "Khách quay lại chuyển đổi gấp 3 lần. Triển khai chiến dịch tiếp cận lại với ưu đãi cá nhân hóa.",
+    impact: "high",
+    cta: "Tạo chiến dịch",
   },
   {
     id: "rec-4",
-    title: "Evening Push Notification Campaign",
-    description: "Peak conversion at 8-9 PM (48%). Schedule app push notifications and social media ads during 7-9 PM window.",
-    expectedImpact: "Medium" as const,
-    priority: 3
-  }
-];
+    title: "Tối ưu Email Marketing",
+    description: "Email có ROI cao nhất (28% chuyển đổi). Tăng tần suất email và đầu tư vào tự động hóa.",
+    impact: "medium",
+    cta: "Tối ưu",
+  },
+]
+
+export const suggestionPrompts: SuggestionPrompt[] = [
+  { id: "p1", text: "Tại sao chuyển đổi giảm?", icon: "trending-down" },
+  { id: "p2", text: "Nhóm khách nào chuyển đổi tốt nhất?", icon: "users" },
+  { id: "p3", text: "Thời gian đăng bài tốt nhất?", icon: "clock" },
+  { id: "p4", text: "Chiến dịch nào hiệu quả nhất?", icon: "bar-chart" },
+]
+
+export const sampleChatResponseSections: ChatResponseSection[] = [
+  {
+    type: "insight",
+    icon: "chart-line",
+    title: "Thông tin",
+    content: "Chuyển đổi giảm 15% so với tuần trước. Sự sụt giảm tập trung vào lượng truy cập buổi sáng từ quảng cáo trả phí.",
+  },
+  {
+    type: "explanation",
+    icon: "search",
+    title: "Giải thích",
+    content: "Việc tạm dừng quảng cáo thứ Hai đã giảm 40% lượng truy cập buổi sáng. Thứ Ba đến Thứ Năm cũng giảm 25% tương tác từ đối tượng quảng cáo.",
+  },
+  {
+    type: "strategy",
+    icon: "target",
+    title: "Chiến lược",
+    content: "Khởi động lại quảng cáo buổi sáng ngay lập tức. Thêm thông báo đẩy buổi tối (7-9 PM) khi chuyển đổi đỉnh 48%.",
+  },
+  {
+    type: "recommendation",
+    icon: "sparkles",
+    title: "Đề xuất",
+    content: "Chạy flash sale Thứ Tư này lúc 8PM nhắm phân khúc khách nóng (17,500 khách hàng). Dự kiến phục hồi: +$89K.",
+  },
+]
+
+export const landingFeatures = [
+  {
+    title: "Dự đoán mua hàng",
+    description: "AI dự đoán khách hàng nào sẽ mua với độ chính xác 95.7%. Tập trung ngân sách vào đúng đối tượng.",
+    icon: "zap",
+  },
+  {
+    title: "Thông tin khách hàng",
+    description: "Tự động phân khúc khách hàng thành nhóm Nóng, Ấm và Lạnh với đề xuất hành động.",
+    icon: "users",
+  },
+  {
+    title: "Trợ lý Marketing AI",
+    description: "Hỏi dữ liệu bằng tiếng Việt. Nhận thông tin, giải thích, chiến lược và đề xuất.",
+    icon: "bot",
+  },
+]
+
+export const allMockData: AnalysisResult = {
+  totalCustomers: 50000,
+  highIntent: 17500,
+  predictedRevenue: "$2.4M",
+  conversionPotential: "35%",
+  engagementTrend: "+12%",
+  segments: audienceSegments,
+  insights: aiInsights,
+  recommendations: recommendations,
+  accuracy: "95.7%",
+}

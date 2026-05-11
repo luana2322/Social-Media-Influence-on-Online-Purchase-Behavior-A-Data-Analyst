@@ -10,6 +10,8 @@ import java.util.List;
 public interface PredictionJobRepository extends JpaRepository<PredictionJob, Long> {
     List<PredictionJob> findByStatus(String status);
 
+    List<PredictionJob> findByUserIdOrderByCreatedAtDesc(Long userId);
+
     @Query("SELECT j FROM PredictionJob j ORDER BY j.createdAt DESC")
     List<PredictionJob> findAllOrderByCreatedAtDesc();
 }

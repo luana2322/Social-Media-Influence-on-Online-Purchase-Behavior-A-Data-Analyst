@@ -1,9 +1,11 @@
 package com.example.socialpurchase.service;
 
 import com.example.socialpurchase.client.OpenAiClient;
+import com.example.socialpurchase.entity.AnalysisSummary;
 import com.example.socialpurchase.entity.ChatHistory;
 import com.example.socialpurchase.entity.PredictionJob;
 import com.example.socialpurchase.entity.PredictionResult;
+import com.example.socialpurchase.repository.AnalysisSummaryRepository;
 import com.example.socialpurchase.repository.ChatHistoryRepository;
 import com.example.socialpurchase.repository.PredictionJobRepository;
 import com.example.socialpurchase.repository.PredictionResultRepository;
@@ -11,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -59,11 +62,21 @@ public class ChatbotService {
     @Autowired private ChatHistoryRepository chatHistoryRepository;
     @Autowired private PredictionJobRepository predictionJobRepository;
     @Autowired private OpenAiClient openAiClient;
+    @Autowired private AnalysisSummaryRepository analysisSummaryRepository;
 
     public String askQuestion(String question, Long jobId, Long userId) {
         List<PredictionResult> results = predictionResultRepository.findByJobId(jobId);
         PredictionJob job = predictionJobRepository.findById(jobId).orElse(null);
-        String context = buildDetailedContext(results, job);
+        Optional<AnalysisSummary> summary = analysisSummaryRepository.findByJobId(jobId);
+
+        String context;
+        if (!results.isEmpty()) {
+            context = buildDetailedContext(results, job);
+        } else if (summary.isPresent()) {
+            context = buildSummaryContext(summary.get());
+        } else {
+            context = "Chưa có kết quả phân tích nào cho job này. Vui lòng đợi quá trình xử lý hoàn tất.";
+        }
 
         String answer = generateAnswer(question, results, context);
 
@@ -81,7 +94,10 @@ public class ChatbotService {
         String lowerQuestion = question.toLowerCase();
 
         if (results.isEmpty()) {
-            return "No prediction results available yet. Please run a prediction job first.";
+            if (context.startsWith("📊 Tổng số bản ghi")) {
+                return generateSummaryAnswer(question, context);
+            }
+            return "Chưa có kết quả dự đoán nào. Vui lòng đợi quá trình xử lý hoàn tất.";
         }
 
         if (lowerQuestion.contains("target") || lowerQuestion.contains("which user")) {
@@ -258,6 +274,48 @@ public class ChatbotService {
             ### 4. 🚀 Recommendation
             Review the segment distribution above and create targeted campaigns for each group.
             """.formatted(avgProb * 100, context);
+    }
+
+    private String generateSummaryAnswer(String question, String context) {
+        return """
+            ### 1. 📌 Tổng quan
+            Dựa trên dữ liệu bạn đã tải lên, tôi đã phân tích và tìm ra những thông tin quan trọng sau.
+
+            ### 2. 📊 Dữ liệu của bạn
+            """ + context + """
+
+            ### 3. 🎯 Nên làm gì?
+            - Tập trung ngân sách vào nhóm khách có khả năng mua cao nhất
+            - Tối ưu kênh marketing có hiệu suất tốt nhất
+            - Triển khai chiến dịch email cá nhân hóa cho từng phân khúc
+
+            ### 4. 🚀 Lời khuyên
+            Hãy tải thêm dữ liệu để tôi phân tích sâu hơn và đưa ra đề xuất cụ thể cho chiến dịch của bạn.
+            """;
+    }
+
+    private String buildSummaryContext(AnalysisSummary summary) {
+        return String.format("""
+            📊 Tổng số bản ghi: %d
+            💰 Doanh thu: %s
+            📈 Chuyển đổi: %d khách (%s)
+
+            🔥 Phân khúc:
+            %s
+
+            📡 Kênh:
+            %s
+
+            💡 Đề xuất:
+            %s
+            """,
+            summary.getTotalRows() != null ? summary.getTotalRows() : 0,
+            summary.getRevenue() != null ? summary.getRevenue() : "N/A",
+            summary.getConversions() != null ? summary.getConversions() : 0,
+            summary.getConversionRate() != null ? summary.getConversionRate() : "0%",
+            summary.getSegments() != null ? summary.getSegments() : "Chưa có dữ liệu",
+            summary.getChannels() != null ? summary.getChannels() : "Chưa có dữ liệu",
+            summary.getRecommendations() != null ? summary.getRecommendations() : "Chưa có dữ liệu");
     }
 
     private String buildDetailedContext(List<PredictionResult> results, PredictionJob job) {

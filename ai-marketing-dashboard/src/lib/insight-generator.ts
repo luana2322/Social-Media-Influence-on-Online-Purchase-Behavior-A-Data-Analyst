@@ -1,53 +1,41 @@
-import type { DashboardData, SegmentData, TrafficSource, TimeDataPoint } from "./types";
+import type { AiInsight, AudienceSegment } from "@/types";
 
-export function generateInsights(data: DashboardData): string[] {
-  const insights: string[] = [];
+function generateId(): string {
+  return "insight-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6);
+}
 
-  // Rule 1: High-intent trend
-  const highIntent = data.segments.find(s => s.minProb >= 0.8);
-  if (highIntent && highIntent.value > 30) {
-    insights.push(`High-intent users segment is ${highIntent.value}% of your base - prioritize immediate conversion campaigns`);
+export function generateInsights(segments: AudienceSegment[]): AiInsight[] {
+  const insights: AiInsight[] = [];
+
+  const hot = segments.find((s) => s.id === "hot");
+  if (hot && hot.percentage > 30) {
+    insights.push({
+      id: generateId(),
+      headline: "Hot buyers are " + hot.percentage + "% of your audience",
+      body: hot.count.toLocaleString() + " high-intent customers are ready to purchase. Launch immediate conversion campaigns.",
+      impact: "high",
+      category: "opportunity",
+    });
   }
 
-  // Rule 2: Under-converted segment
-  const mediumSegment = data.segments.find(s => s.minProb >= 0.71 && s.maxProb < 0.8);
-  if (mediumSegment && mediumSegment.value > 40) {
-    insights.push(`Medium-intent users (${mediumSegment.value}%) need nurturing - try educational content and limited-time offers`);
+  const warm = segments.find((s) => s.id === "warm");
+  if (warm && warm.percentage > 40) {
+    insights.push({
+      id: generateId(),
+      headline: "Warm audience needs nurturing",
+      body: warm.count.toLocaleString() + " interested customers need educational content and social proof to convert.",
+      impact: "medium",
+      category: "action",
+    });
   }
 
-  // Rule 3: Best channel
-  const bestChannel = [...data.trafficSources].sort((a, b) => b.conversionRate - a.conversionRate)[0];
-  if (bestChannel) {
-    insights.push(`Focus budget on ${bestChannel.source} - highest conversion at ${(bestChannel.conversionRate * 100).toFixed(1)}%`);
-  }
-
-  // Rule 4: Time-based insight
-  const peakHour = [...data.timeData].sort((a, b) => b.conversionRate - a.conversionRate)[0];
-  if (peakHour && peakHour.hour !== undefined) {
-    const hourStr = `${peakHour.hour}:00 - ${peakHour.hour + 2}:00`;
-    insights.push(`Best time to target users: ${hourStr} when conversion peaks at ${(peakHour.conversionRate * 100).toFixed(1)}%`);
-  }
-
-  // Rule 5: Revenue opportunity
-  const totalUsers = data.kpiStats.find(s => s.title.includes("Users"))?.value;
-  if (totalUsers) {
-    insights.push(`Revenue opportunity: ${data.segments.filter(s => s.minProb >= 0.71).reduce((sum, s) => sum + s.count, 0).toLocaleString()} high-value users identified`);
-  }
+  insights.push({
+    id: generateId(),
+    headline: "Email marketing delivers highest ROI",
+    body: "Email converts at 28% — the highest of any channel. Increase email frequency and invest in automation.",
+    impact: "high",
+    category: "opportunity",
+  });
 
   return insights.slice(0, 3);
-}
-
-export function generateSegmentInsight(segment: SegmentData): string {
-  if (segment.minProb >= 0.8) {
-    return `With ${(segment.minProb * 100).toFixed(0)}%+ purchase probability, these users are ready to buy. Immediate action required.`;
-  } else if (segment.minProb >= 0.71) {
-    return `These users show interest but need persuasion. Content marketing and social proof work best here.`;
-  } else {
-    return `Low intent users require retargeting. Focus on brand awareness and special discount campaigns.`;
-  }
-}
-
-export function generateFeatureInsight(feature: { feature: string; importance: number }): string {
-  const percentage = (feature.importance * 100).toFixed(0);
-  return `${feature.feature} contributes +${percentage}% to purchase probability`;
 }

@@ -1,73 +1,63 @@
-"use client";
+"use client"
 
-import { useLanguage } from "@/i18n/LanguageProvider";
-import { Card, CardContent } from "@/components/ui/card";
-import { Brain, Users, MessageSquare, BarChart3 } from "lucide-react";
+import { Zap, Users, Bot, ArrowRight } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { useRouter } from "next/navigation"
+
+const iconMap: Record<string, typeof Zap> = {
+  zap: Zap,
+  users: Users,
+  bot: Bot,
+}
+
+const features = [
+  { icon: "zap", title: "Dự đoán mua hàng", desc: "AI dự đoán khách hàng nào sẽ mua với độ chính xác 95.7%. Tập trung ngân sách vào đúng đối tượng." },
+  { icon: "users", title: "Thông tin khách hàng", desc: "Tự động phân khúc khách hàng thành nhóm Nóng, Ấm và Lạnh với đề xuất hành động." },
+  { icon: "bot", title: "Trợ lý Marketing AI", desc: "Hỏi dữ liệu bằng tiếng Việt. Nhận thông tin, giải thích, chiến lược và đề xuất." },
+]
 
 export default function FeaturesSection() {
-  const { t } = useLanguage();
+  const router = useRouter()
 
   return (
-    <section className="py-20 bg-white">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-center text-3xl font-bold text-gray-900 sm:text-4xl">
-          {t("landing.features.title")}
-        </h2>
+    <section className="py-20 px-6 bg-accent/30">
+      <div className="max-w-5xl mx-auto">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold tracking-tight">Mọi thứ bạn cần để bán hàng thông minh hơn</h2>
+          <p className="text-muted-foreground mt-2">
+            Không cần kiến thức ML. Chỉ cần tải dữ liệu và nhận câu trả lời.
+          </p>
+        </div>
 
-        <div className="mt-16 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:gap-12">
-          {/* Feature 1 */}
-          <div className="rounded-2xl border-0 shadow-lg transition-all hover:shadow-xl p-8 text-center">
-            <div className="mb-4 rounded-full p-4 bg-blue-100 text-blue-600 inline-block">
-              <Brain className="h-8 w-8" />
-            </div>
-            <h3 className="mb-2 text-xl font-semibold text-gray-900">
-              {t("landing.features.prediction.title")}
-            </h3>
-            <p className="text-muted-foreground">
-              {t("landing.features.prediction.desc")}
-            </p>
-          </div>
+        <div className="grid gap-6 sm:grid-cols-3">
+          {features.map((feature) => {
+            const Icon = iconMap[feature.icon] || Zap
+            return (
+              <div
+                key={feature.title}
+                className="rounded-2xl border bg-card p-6 hover:shadow-md transition-shadow"
+              >
+                <div className="h-12 w-12 rounded-xl bg-violet-50 dark:bg-violet-950/30 flex items-center justify-center mb-4">
+                  <Icon className="h-6 w-6 text-violet-500" />
+                </div>
+                <h3 className="font-semibold text-lg mb-2">{feature.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  {feature.desc}
+                </p>
+              </div>
+            )
+          })}
+        </div>
 
-          {/* Feature 2 */}
-          <div className="rounded-2xl border-0 shadow-lg transition-all hover:shadow-xl p-8 text-center">
-            <div className="mb-4 rounded-full p-4 bg-purple-100 text-purple-600 inline-block">
-              <Users className="h-8 w-8" />
-            </div>
-            <h3 className="mb-2 text-xl font-semibold text-gray-900">
-              {t("landing.features.segmentation.title")}
-            </h3>
-            <p className="text-muted-foreground">
-              {t("landing.features.segmentation.desc")}
-            </p>
-          </div>
-
-          {/* Feature 3 */}
-          <div className="rounded-2xl border-0 shadow-lg transition-all hover:shadow-xl p-8 text-center">
-            <div className="mb-4 rounded-full p-4 bg-green-100 text-green-600 inline-block">
-              <MessageSquare className="h-8 w-8" />
-            </div>
-            <h3 className="mb-2 text-xl font-semibold text-gray-900">
-              {t("landing.features.chatbot.title")}
-            </h3>
-            <p className="text-muted-foreground">
-              {t("landing.features.chatbot.desc")}
-            </p>
-          </div>
-
-          {/* Feature 4 */}
-          <div className="rounded-2xl border-0 shadow-lg transition-all hover:shadow-xl p-8 text-center">
-            <div className="mb-4 rounded-full p-4 bg-orange-100 text-orange-600 inline-block">
-              <BarChart3 className="h-8 w-8" />
-            </div>
-            <h3 className="mb-2 text-xl font-semibold text-gray-900">
-              {t("landing.features.analytics.title")}
-            </h3>
-            <p className="text-muted-foreground">
-              {t("landing.features.analytics.desc")}
-            </p>
-          </div>
+        <div className="text-center mt-10">
+          <Button
+            className="rounded-xl bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white hover:from-violet-600 hover:to-fuchsia-600"
+            onClick={() => router.push("/overview")}
+          >
+            Dùng thử miễn phí <ArrowRight className="h-4 w-4 ml-2" />
+          </Button>
         </div>
       </div>
     </section>
-  );
+  )
 }

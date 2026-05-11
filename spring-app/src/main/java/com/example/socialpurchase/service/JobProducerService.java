@@ -26,7 +26,7 @@ public class JobProducerService {
     @Autowired private PredictionJobRepository predictionJobRepository;
     @Autowired private ObjectMapper objectMapper;
 
-    public Long createJob(MultipartFile file) throws IOException {
+    public Long createJob(MultipartFile file, Long userId) throws IOException {
         Files.createDirectories(Paths.get(UPLOAD_DIR));
         String filename = UUID.randomUUID() + "_" + file.getOriginalFilename();
         Path filePath = Paths.get(UPLOAD_DIR, filename);
@@ -34,6 +34,7 @@ public class JobProducerService {
 
         PredictionJob job = new PredictionJob();
         job.setStatus("pending");
+        job.setUserId(userId);
         job.setDatasetPath(filePath.toString());
         predictionJobRepository.save(job);
 
@@ -47,9 +48,10 @@ public class JobProducerService {
         return job.getId();
     }
 
-    public Long createJob(String datasetPath) {
+    public Long createJob(String datasetPath, Long userId) {
         PredictionJob job = new PredictionJob();
         job.setStatus("pending");
+        job.setUserId(userId);
         job.setDatasetPath(datasetPath);
         predictionJobRepository.save(job);
 

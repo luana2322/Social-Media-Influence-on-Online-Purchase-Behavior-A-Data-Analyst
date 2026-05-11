@@ -1,128 +1,75 @@
 "use client"
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useLanguage } from "@/i18n/LanguageProvider"
-import { Globe } from "lucide-react"
+import { Sparkles } from "lucide-react"
 
 export default function SettingsPage() {
-  const { t, language, setLanguage } = useLanguage()
-
   return (
-    <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-bold tracking-tight">{t("settingsTitle")}</h1>
+    <div className="flex flex-col gap-8 max-w-3xl mx-auto">
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight">Cài đặt</h1>
+        <p className="text-muted-foreground mt-1">
+          Quản lý tài khoản và tùy chọn
+        </p>
+      </div>
 
-      <Tabs defaultValue="profile" className="w-full">
-        <TabsList className="rounded-2xl">
-          <TabsTrigger value="profile" className="rounded-2xl">{t("profile")}</TabsTrigger>
-          <TabsTrigger value="api" className="rounded-2xl">API Keys</TabsTrigger>
-          <TabsTrigger value="appearance" className="rounded-2xl">{t("settingsTitle")}</TabsTrigger>
-          <TabsTrigger value="language" className="rounded-2xl">{t("language")}</TabsTrigger>
+      <Tabs defaultValue="api" className="w-full">
+        <TabsList className="rounded-xl">
+          <TabsTrigger value="api" className="rounded-xl">Cài đặt API</TabsTrigger>
+          <TabsTrigger value="profile" className="rounded-xl">Hồ sơ</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="profile">
-          <Card className="rounded-2xl shadow-sm">
-            <CardHeader>
-              <CardTitle>{t("profile")}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex items-center gap-4">
-                <Avatar className="h-20 w-20">
-                  <AvatarImage src="https://github.com/shadcn.png" />
-                  <AvatarFallback>JD</AvatarFallback>
-                </Avatar>
-                <Button variant="outline" className="rounded-2xl">Change Avatar</Button>
-              </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Full Name</Label>
-                  <Input id="name" defaultValue="John Doe" className="rounded-2xl" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input id="email" defaultValue="john@example.com" className="rounded-2xl" />
-                </div>
-              </div>
-              <Button className="rounded-2xl">Save Changes</Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
         <TabsContent value="api">
-          <Card className="rounded-2xl shadow-sm">
-            <CardHeader>
-              <CardTitle>API Keys</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="openai-key">OpenAI API Key</Label>
-                <Input id="openai-key" type="password" placeholder="sk-..." className="rounded-2xl" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="ml-service">ML Service URL</Label>
-                <Input id="ml-service" defaultValue="http://localhost:8000" className="rounded-2xl" />
-              </div>
-              <Button className="rounded-2xl">Save API Settings</Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="appearance">
-          <Card className="rounded-2xl shadow-sm">
-            <CardHeader>
-              <CardTitle>{t("settingsTitle")}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">{t("darkMode")}</p>
-                  <p className="text-sm text-muted-foreground">{t("darkModeDesc")}</p>
-                </div>
-                <Switch />
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="language">
-          <Card className="rounded-2xl shadow-sm">
+          <Card className="rounded-2xl border-0 shadow-sm">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Globe className="h-5 w-5" />
-                {t("language")}
+                <Sparkles className="h-5 w-5 text-violet-500" />
+                Cài đặt API
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div
-                className={`flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-colors ${language === "en" ? "bg-accent border-primary" : "hover:bg-accent"}`}
-                onClick={() => setLanguage("en")}
-              >
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">🇺🇸</span>
-                  <div>
-                    <p className="font-medium">{t("english")}</p>
-                    <p className="text-sm text-muted-foreground">{t("englishDesc")}</p>
-                  </div>
-                </div>
-                {language === "en" && <span className="text-primary">✓</span>}
+              <div className="space-y-2">
+                <Label htmlFor="openai-key">Khóa OpenAI API</Label>
+                <Input id="openai-key" type="password" placeholder="sk-..." className="rounded-xl" />
               </div>
-              <div
-                className={`flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-colors ${language === "vi" ? "bg-accent border-primary" : "hover:bg-accent"}`}
-                onClick={() => setLanguage("vi")}
-              >
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">🇻🇳</span>
-                  <div>
-                    <p className="font-medium">{t("vietnamese")}</p>
-                    <p className="text-sm text-muted-foreground">{t("vietnameseDesc")}</p>
-                  </div>
-                </div>
-                {language === "vi" && <span className="text-primary">✓</span>}
+              <div className="space-y-2">
+                <Label htmlFor="ml-service">URL dịch vụ ML</Label>
+                <Input id="ml-service" defaultValue="http://localhost:8000" className="rounded-xl" />
               </div>
+              <Button className="rounded-xl bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white hover:from-violet-600 hover:to-fuchsia-600">Lưu</Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="profile">
+          <Card className="rounded-2xl border-0 shadow-sm">
+            <CardHeader>
+              <CardTitle>Hồ sơ</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Tên</Label>
+                  <Input id="name" defaultValue="John Doe" className="rounded-xl" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input id="email" defaultValue="john@example.com" className="rounded-xl" />
+                </div>
+              </div>
+              <div className="flex items-center justify-between p-4 rounded-xl border">
+                <div>
+                  <p className="font-medium">Chế độ tối</p>
+                  <p className="text-sm text-muted-foreground">Bật/tắt giao diện tối</p>
+                </div>
+                <Switch />
+              </div>
+              <Button className="rounded-xl bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white hover:from-violet-600 hover:to-fuchsia-600">Lưu thay đổi</Button>
             </CardContent>
           </Card>
         </TabsContent>
