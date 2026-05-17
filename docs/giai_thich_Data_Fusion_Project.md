@@ -267,9 +267,14 @@ Lưu fused dataset vào SQLite database và CSV.
 
 **Loại:** Univariate
 
+**Liên quan đến Q:** Q4 (hỗ trợ)
+
 **Mã:** `ax.hist(fused_df['PageValues'].clip(upper=quantile(0.95)), bins=40)`
 
-**Ý nghĩa:** PageValues phân phối lệch phải (right-skewed) — hầu hết session có PageValues gần 0, số ít có giá trị cao. Giải thích tại sao PageValues là feature quan trọng nhất và cần log-transform.
+**Ý nghĩa:** PageValues phân phối lệch phải (right-skewed) — hầu hết session có PageValues gần 0, số ít có giá trị cao.
+
+**Insight rút gọn:**
+> The distribution is heavily right-skewed — most sessions have PageValues near zero, while a few generate high value. This justifies the log-transform used in Feature Engineering and explains why PageValues is the top predictor in the model.
 
 ---
 
@@ -277,9 +282,14 @@ Lưu fused dataset vào SQLite database và CSV.
 
 **Loại:** Univariate
 
+**Liên quan đến Q:** Tất cả các Q (nền tảng)
+
 **Mã:** `ax.bar(labels, [count_0, count_1])`
 
-**Ý nghĩa:** Class imbalance rõ rệt — 84.6% không mua, 15.4% mua. Giải thích tại sao dùng ROC-AUC thay vì accuracy.
+**Ý nghĩa:** Class imbalance rõ rệt — 84.6% không mua, 15.4% mua.
+
+**Insight rút gọn:**
+> The dataset is highly imbalanced (84.6% no purchase vs 15.4% purchase). This motivates using ROC-AUC over accuracy as the primary metric and highlights why social signals may help identify the minority purchase class.
 
 ---
 
@@ -287,9 +297,14 @@ Lưu fused dataset vào SQLite database và CSV.
 
 **Loại:** Bivariate
 
+**Liên quan đến Q:** **Q1** (trực tiếp)
+
 **Mã:** `ax.scatter(avg_sentiment, purchase_rate, s=total_sessions/30, c=avg_sentiment, cmap='RdYlGn')`
 
-**Ý nghĩa:** Xu hướng dương — tháng có sentiment cao hơn thì purchase rate cao hơn. Đây là bằng chứng cốt lõi cho Q1.
+**Ý nghĩa:** Xu hướng dương — tháng có sentiment cao hơn thì purchase rate cao hơn. Bằng chứng cốt lõi cho Q1.
+
+**Insight rút gọn:**
+> Months with higher Twitter sentiment show higher purchase conversion rates — a positive trend only discoverable through data fusion. This is the core evidence that social mood co-varies with eCommerce purchase behavior.
 
 ---
 
@@ -297,9 +312,14 @@ Lưu fused dataset vào SQLite database và CSV.
 
 **Loại:** Bivariate
 
+**Liên quan đến Q:** **Q4** (trực tiếp)
+
 **Mã:** `sns.boxplot(data=plot_data, x='Purchase', y='PageValues')`
 
 **Ý nghĩa:** Session mua hàng có median PageValues cao hơn rõ rệt. PageValues là feature mạnh nhất.
+
+**Insight rút gọn:**
+> Purchasing sessions have significantly higher median PageValues than non-purchasing ones — the strongest separation of any single feature. While PageValues dominates at session level, social sentiment explains monthly macro variation, making them complementary signals.
 
 ---
 
@@ -307,9 +327,14 @@ Lưu fused dataset vào SQLite database và CSV.
 
 **Loại:** Univariate (bổ sung)
 
+**Liên quan đến Q:** **Q1 + Q2** (giải thích cơ chế)
+
 **Mã:** `ax.bar(sent_counts.index, sent_counts.values)` + `ax2.bar(eng_by_sent.index, eng_by_sent.values)`
 
-**Ý nghĩa:** Hầu hết tweet là neutral, nhưng positive tweets có engagement cao hơn hẳn. Giải thích cơ chế Q1 + Q2.
+**Ý nghĩa:** Hầu hết tweet là neutral, nhưng positive tweets có engagement cao hơn hẳn.
+
+**Insight rút gọn:**
+> Most tweets are neutral, but positive tweets attract significantly higher engagement. This dual amplification means positive sentiment correlates with both higher purchase rates (Q1) and more social engagement (Q2) — a key fusion insight.
 
 ---
 
@@ -317,9 +342,14 @@ Lưu fused dataset vào SQLite database và CSV.
 
 **Loại:** Bivariate (bổ sung)
 
+**Liên quan đến Q:** **Q2** (hỗ trợ)
+
 **Mã:** `ax.scatter(sub['avg_engagement'], sub['PageValues_clipped'])` với 2 màu cho 2 class
 
-**Ý nghĩa:** Session mua hàng tập trung ở vùng cả PageValues và engagement cao. Chứng minh giá trị của data fusion.
+**Ý nghĩa:** Session mua hàng tập trung ở vùng cả PageValues và engagement cao.
+
+**Insight rút gọn:**
+> Purchase sessions cluster at both higher PageValues and higher engagement months — the two dimensions are jointly predictive. This motivates the cross-feature sentiment_x_pagevalue and proves that data fusion outperforms either dataset alone.
 
 ---
 
