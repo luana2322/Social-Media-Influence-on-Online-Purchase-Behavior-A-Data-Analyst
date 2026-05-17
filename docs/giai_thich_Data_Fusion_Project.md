@@ -261,37 +261,9 @@ Lưu fused dataset vào SQLite database và CSV.
 
 ---
 
-### Step 8: Visualization - 6 Plots (Cells 8-13 + Markdown Insights)
+### Step 8: Visualization - 2 Plots (Cells 16-19 + Markdown Insights)
 
-#### Plot 1: Histogram — Distribution of PageValues
-
-**Loại:** Univariate
-
-**Liên quan đến Q:** Q4 (hỗ trợ)
-
-**Mã:** `ax.hist(fused_df['PageValues'].clip(upper=quantile(0.95)), bins=40)`
-
-**Ý nghĩa:** PageValues phân phối lệch phải (right-skewed) — hầu hết session có PageValues gần 0, số ít có giá trị cao.
-
-**Insight rút gọn:**
-> The distribution is heavily right-skewed — most sessions have PageValues near zero, while a few generate high value. This justifies the log-transform used in Feature Engineering and explains why PageValues is the top predictor in the model.
-
----
-
-#### Plot 2: Bar Chart — Revenue Class Distribution
-
-**Loại:** Univariate
-
-**Liên quan đến Q:** Tất cả các Q (nền tảng)
-
-**Mã:** `ax.bar(labels, [count_0, count_1])`
-
-**Ý nghĩa:** Class imbalance rõ rệt — 84.6% không mua, 15.4% mua.
-
-**Insight rút gọn:**
-> The dataset is highly imbalanced (84.6% no purchase vs 15.4% purchase). This motivates using ROC-AUC over accuracy as the primary metric and highlights why social signals may help identify the minority purchase class.
-
----
+Giữ lại 2 plot chính, bỏ Plot 1, 2, 5, 6 để giảm trùng lặp (nội dung đã có trong Dashboard Research Questions).
 
 #### Plot 3: Scatter — Monthly Sentiment vs Purchase Rate
 
@@ -321,39 +293,7 @@ Lưu fused dataset vào SQLite database và CSV.
 **Insight rút gọn:**
 > Purchasing sessions have significantly higher median PageValues than non-purchasing ones — the strongest separation of any single feature. While PageValues dominates at session level, social sentiment explains monthly macro variation, making them complementary signals.
 
----
-
-#### Plot 5: Bar Charts — Twitter Sentiment Distribution
-
-**Loại:** Univariate (bổ sung)
-
-**Liên quan đến Q:** **Q1 + Q2** (giải thích cơ chế)
-
-**Mã:** `ax.bar(sent_counts.index, sent_counts.values)` + `ax2.bar(eng_by_sent.index, eng_by_sent.values)`
-
-**Ý nghĩa:** Hầu hết tweet là neutral, nhưng positive tweets có engagement cao hơn hẳn.
-
-**Insight rút gọn:**
-> Most tweets are neutral, but positive tweets attract significantly higher engagement. This dual amplification means positive sentiment correlates with both higher purchase rates (Q1) and more social engagement (Q2) — a key fusion insight.
-
----
-
-#### Plot 6: Scatter — Engagement vs PageValues by Revenue
-
-**Loại:** Bivariate (bổ sung)
-
-**Liên quan đến Q:** **Q2** (hỗ trợ)
-
-**Mã:** `ax.scatter(sub['avg_engagement'], sub['PageValues_clipped'])` với 2 màu cho 2 class
-
-**Ý nghĩa:** Session mua hàng tập trung ở vùng cả PageValues và engagement cao.
-
-**Insight rút gọn:**
-> Purchase sessions cluster at both higher PageValues and higher engagement months — the two dimensions are jointly predictive. This motivates the cross-feature sentiment_x_pagevalue and proves that data fusion outperforms either dataset alone.
-
----
-
-### Step 9: ML Models & Research Questions Dashboard (Cells 14-16)
+### Step 9: ML Models & Research Questions Dashboard (Cells 21-23)
 
 #### Cell 14: Train ML Models
 
@@ -473,7 +413,7 @@ Load (3 CSVs, 200K rows each)
       → FUSION PHASE 2: Amazon broadcast (global stats)
       → FUSION PHASE 3: Cross-features (interaction terms)
         → EDA (thống kê cơ bản)
-          → 6 Plots (univariate + bivariate)
+          → 2 Plots + 1 Dashboard (Q1-Q6)
             → ML Models (LR + RF, AUC: 0.856 - 0.942)
               → 6 Research Questions Answered
 ```
@@ -484,4 +424,5 @@ Load (3 CSVs, 200K rows each)
 - `output/social_category_analysis.csv`: Thống kê category từ Twitter
 - `output/amazon_category_analysis.csv`: Thống kê category từ Amazon
 - `output/research_questions_analysis.png`: Dashboard 8 subplots
-- 6 PNG plots riêng lẻ
+- `output/plot3_sentiment_vs_purchase.png`: Plot 3 (Q1)
+- `output/plot4_pagevalues_by_revenue.png`: Plot 4 (Q4)
