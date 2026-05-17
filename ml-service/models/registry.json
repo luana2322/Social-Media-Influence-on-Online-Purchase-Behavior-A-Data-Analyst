@@ -1,0 +1,34 @@
+{
+  "ECOMMERCE": {
+    "model_path": "models/ecommerce/model.pkl",
+    "features_path": "models/ecommerce/features.json",
+    "metadata_path": "models/ecommerce/metadata.json",
+    "threshold_path": "models/ecommerce/optimal_threshold.json",
+    "version": "1.0.0",
+    "fallback_to_default": true
+  },
+  "SOCIAL_MEDIA": {
+    "model_path": "models/social/model.pkl",
+    "features_path": "models/social/features.json",
+    "metadata_path": "models/social/metadata.json",
+    "threshold_path": "models/social/optimal_threshold.json",
+    "version": "1.0.0",
+    "fallback_to_default": true
+  },
+  "WEB_ANALYTICS": {
+    "model_path": "models/web/model.pkl",
+    "features_path": "models/web/features.json",
+    "metadata_path": "models/web/metadata.json",
+    "threshold_path": "models/web/optimal_threshold.json",
+    "version": "1.0.0",
+    "fallback_to_default": true
+  },
+  "GENERAL": {
+    "model_path": "models/model.pkl",
+    "features_path": "models/features.json",
+    "metadata_path": "models/metadata.json",
+    "threshold_path": "models/optimal_threshold.json",
+    "version": "1.1.0",
+    "fallback_to_default": false
+  }
+}

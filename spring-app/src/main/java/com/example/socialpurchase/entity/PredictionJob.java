@@ -46,6 +46,9 @@ public class PredictionJob {
     @Column(name = "id_column")
     private String idColumn;  // Detected ID column name
 
+    @Column(name = "column_warnings", columnDefinition = "TEXT")
+    private String columnWarnings;  // JSON: schema validation warnings
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -101,6 +104,9 @@ public class PredictionJob {
 
     public String getIdColumn() { return idColumn; }
     public void setIdColumn(String idColumn) { this.idColumn = idColumn; }
+
+    public String getColumnWarnings() { return columnWarnings; }
+    public void setColumnWarnings(String columnWarnings) { this.columnWarnings = columnWarnings; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

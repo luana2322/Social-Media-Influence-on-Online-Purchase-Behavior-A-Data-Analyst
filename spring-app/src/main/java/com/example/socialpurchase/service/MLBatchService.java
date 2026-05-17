@@ -19,10 +19,10 @@ public class MLBatchService {
     @Autowired private MLServiceClient mlServiceClient;
     @Autowired private PredictionResultRepository predictionResultRepository;
 
-    public void processChunk(List<Map<String, Object>> chunk, List<String> recordIds, Long jobId) {
+    public void processChunk(List<Map<String, Object>> chunk, List<String> recordIds, Long jobId, String datasetType) {
         long startTime = System.currentTimeMillis();
 
-        List<BatchPredictionResponse> predictions = mlServiceClient.batchPredictChunk(chunk);
+        List<BatchPredictionResponse> predictions = mlServiceClient.batchPredictChunk(chunk, datasetType);
 
         List<PredictionResult> results = new ArrayList<>();
         for (int i = 0; i < predictions.size(); i++) {

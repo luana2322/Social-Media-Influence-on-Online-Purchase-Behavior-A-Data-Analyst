@@ -23,6 +23,7 @@ public class JobWorkerService {
     @Autowired private JobQueueRepository jobQueueRepository;
     @Autowired private PredictionJobRepository predictionJobRepository;
     @Autowired private DatasetStreamingService datasetStreamingService;
+    @Autowired private RecommendationEngine recommendationEngine;
     @Autowired private ObjectMapper objectMapper;
 
     public void startWorker() {
@@ -88,6 +89,13 @@ public class JobWorkerService {
         predictionJob.setCompletedAt(LocalDateTime.now());
         predictionJobRepository.saveAndFlush(predictionJob);
         logger.info(String.format("Job %d marked as completed", jobId));
+
+        try {
+            recommendationEngine.generateAndSave(jobId);
+            logger.info(String.format("Recommendations generated for job %d", jobId));
+        } catch (Exception e) {
+            logger.warning(String.format("Failed to generate recommendations for job %d: %s", jobId, e.getMessage()));
+        }
     }
 
     private void markJobDone(JobQueue jobQueue) {

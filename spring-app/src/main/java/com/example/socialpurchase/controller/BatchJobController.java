@@ -139,4 +139,22 @@ public class BatchJobController {
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
+
+    @GetMapping("/{jobId}/warnings")
+    public ResponseEntity<?> getColumnWarnings(@PathVariable Long jobId) {
+        return predictionJobRepository.findById(jobId)
+                .map(job -> {
+                    String warnings = job.getColumnWarnings();
+                    if (warnings != null && !warnings.isEmpty()) {
+                        try {
+                            Object parsed = new com.fasterxml.jackson.databind.ObjectMapper().readTree(warnings);
+                            return ResponseEntity.ok().body(parsed);
+                        } catch (Exception e) {
+                            return ResponseEntity.ok().body(Map.of("raw", warnings));
+                        }
+                    }
+                    return ResponseEntity.ok().body(Map.of("message", "No column warnings"));
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
 }
