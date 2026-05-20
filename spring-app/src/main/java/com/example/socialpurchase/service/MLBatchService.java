@@ -25,30 +25,46 @@ public class MLBatchService {
         List<BatchPredictionResponse> predictions = mlServiceClient.batchPredictChunk(chunk, datasetType);
 
         List<PredictionResult> results = new ArrayList<>();
+        double sumProb = 0, minProb = 1, maxProb = 0;
+        int highCount = 0, medCount = 0, lowCount = 0;
         for (int i = 0; i < predictions.size(); i++) {
             BatchPredictionResponse pred = predictions.get(i);
             PredictionResult result = new PredictionResult();
             result.setJobId(jobId);
-            // Use meaningful record ID from CSV, fallback to prediction's recordId, then row number
             String recordId = (i < recordIds.size()) ? recordIds.get(i) : pred.getRecordId();
-            // Clean up recordId: if unknown/empty, use row number
             if (recordId == null || recordId.trim().isEmpty() || recordId.equalsIgnoreCase("unknown")) {
                 recordId = "row_" + (i + 1);
             }
             result.setRecordId(recordId);
-            // Create display ID: "Dòng X (ID: Y)" for clarity
             String displayId = "Dòng " + (i + 1) + (recordId != null && !recordId.startsWith("row_") ? " (ID: " + recordId + ")" : "");
             result.setDisplayId(displayId);
             result.setProbability(pred.getProbability());
             result.setSegment(pred.getSegment());
             result.setModelVersion(pred.getModelVersion());
             results.add(result);
+
+            double prob = pred.getProbability();
+            sumProb += prob;
+            if (prob < minProb) minProb = prob;
+            if (prob > maxProb) maxProb = prob;
+            if (prob > 0.8) highCount++;
+            else if (prob > 0.5) medCount++;
+            else lowCount++;
+
+            if (predictions.size() <= 10 || i < 3) {
+                System.out.printf("  [PRED] %s | probability=%.4f | segment=%s%n",
+                        recordId, prob, pred.getSegment());
+            }
         }
 
         batchInsert(results);
 
         long duration = System.currentTimeMillis() - startTime;
-        logger.info(String.format("Processed chunk of %d records in %dms", chunk.size(), duration));
+        double avgProb = sumProb / predictions.size();
+        String logMsg = String.format("Chunk %d records | Prob: avg=%.3f min=%.3f max=%.3f | Segments: High=%d Med=%d Low=%d | %dms",
+                chunk.size(), avgProb, minProb, maxProb, highCount, medCount, lowCount, duration);
+        logger.info(logMsg);
+        System.out.println(logMsg);
     }
 
     private void batchInsert(List<PredictionResult> results) {

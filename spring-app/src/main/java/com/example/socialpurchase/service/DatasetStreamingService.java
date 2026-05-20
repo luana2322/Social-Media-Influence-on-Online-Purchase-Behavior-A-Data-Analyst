@@ -35,6 +35,8 @@ public class DatasetStreamingService {
         String[] headers = null;
         Map<String, String> columnMapping = null;
 
+        long startTime = System.currentTimeMillis();
+
         try (BufferedReader br = new BufferedReader(new FileReader(datasetPath))) {
             String line;
             boolean isHeader = true;
@@ -86,6 +88,10 @@ public class DatasetStreamingService {
             job.setProcessedRecords(totalRecords);
             job.setProgressPercent(100.0f);
             predictionJobRepository.save(job);
+
+            long totalDuration = System.currentTimeMillis() - startTime;
+            System.out.printf("[JOB %d] DONE: %d records in %d chunks | Time: %dms | Type: %s%n",
+                    jobId, totalRecords, chunkCount, totalDuration, job.getDatasetType());
         }
         return chunkCount;
     }
