@@ -1,0 +1,43 @@
+{
+  "numerical_features": [
+    "PageValues",
+    "BounceRates",
+    "ExitRates",
+    "ProductRelated",
+    "Administrative",
+    "avg_sentiment",
+    "total_engagement",
+    "positive_ratio",
+    "engagement_norm",
+    "global_avg_price"
+  ],
+  "categorical_features": [
+    "Month",
+    "OperatingSystems",
+    "Browser",
+    "Region",
+    "TrafficType",
+    "VisitorType",
+    "Weekend"
+  ],
+  "target": "Revenue",
+  "all_features": [
+    "PageValues",
+    "BounceRates",
+    "ExitRates",
+    "ProductRelated",
+    "Administrative",
+    "avg_sentiment",
+    "total_engagement",
+    "positive_ratio",
+    "engagement_norm",
+    "global_avg_price",
+    "Month",
+    "OperatingSystems",
+    "Browser",
+    "Region",
+    "TrafficType",
+    "VisitorType",
+    "Weekend"
+  ]
+}

@@ -11,7 +11,8 @@ from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.metrics import (
     accuracy_score, f1_score, roc_auc_score, average_precision_score,
-    precision_score, recall_score, confusion_matrix, precision_recall_curve
+    precision_score, recall_score, confusion_matrix, precision_recall_curve,
+    roc_curve
 )
 import xgboost as xgb
 
@@ -108,6 +109,9 @@ for name, model in models.items():
     recall = recall_score(y_test, y_pred)
     cm = confusion_matrix(y_test, y_pred).tolist()
 
+    # ROC curve data for visualization
+    fpr, tpr, _ = roc_curve(y_test, y_prob)
+
     # Cross-validation scores
     cv_roc_auc = cross_val_score(model, X, y, cv=cv, scoring='roc_auc')
     cv_f1 = cross_val_score(model, X, y, cv=cv, scoring='f1')
@@ -127,7 +131,11 @@ for name, model in models.items():
         'cv_f1_mean': float(cv_f1.mean()),
         'cv_f1_std': float(cv_f1.std()),
         'cv_pr_auc_mean': float(cv_pr_auc.mean()),
-        'cv_pr_auc_std': float(cv_pr_auc.std())
+        'cv_pr_auc_std': float(cv_pr_auc.std()),
+        'roc_curve': {
+            'fpr': [round(x, 4) for x in fpr.tolist()],
+            'tpr': [round(x, 4) for x in tpr.tolist()]
+        }
     }
 
     print(f"  Test Set Metrics:")
