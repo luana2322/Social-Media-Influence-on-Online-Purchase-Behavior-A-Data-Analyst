@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation"
 import {
   LayoutDashboard,
   UploadCloud,
-  MessageSquare,
   History,
   Settings,
   Sparkles,
@@ -20,7 +19,6 @@ const navItems = [
   { href: "/overview", label: "Tổng quan", icon: LayoutDashboard },
   { href: "/analyze", label: "Phân tích dữ liệu", icon: UploadCloud },
   { href: "/history", label: "Lịch sử", icon: History },
-  { href: "/assistant", label: "Trợ lý AI", icon: MessageSquare },
   { href: "/settings", label: "Cài đặt", icon: Settings },
 ]
 

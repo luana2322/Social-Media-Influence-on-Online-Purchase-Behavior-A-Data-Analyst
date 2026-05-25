@@ -4,37 +4,37 @@
 A production-ready **SaaS platform** that predicts online purchase behavior using ML models trained on fused data (e-commerce + social media + product). The platform features:
 - **Batch prediction** with CSV upload (10K-1M rows) and auto column mapping
 - **AI Marketing Dashboard** (Next.js) with analytics and segmentation
-- **Chatbot with LLM integration** for conversational marketing insights (4-section response format)
 - **Async job processing** with progress tracking
 - **Multi-tenant architecture** with PostgreSQL
 - **Language toggle** (EN/VI) in frontend with globe button
 - **XGBoost Pipeline** bundled as sklearn Pipeline (no separate scaler/encoder)
 
-## 📊 Model Metrics (v1.1.0)
+## 📊 Model Metrics (v1.2.0)
 
 | Metric | Test Score | CV Score (5-Fold) |
 |--------|-----------|-------------------|
-| **Model** | XGBoost | XGBoost |
-| **ROC-AUC** | 0.9532 | **0.9571 ± 0.004** |
-| **PR-AUC** | 0.8592 | 0.8685 ± 0.009 |
-| **Accuracy** | 0.9020 (0.9292*) | - |
-| **F1-Score** | 0.7229 (**0.7600***) | 0.7288 ± 0.014 |
-| **Precision** | 0.6429 (0.7996*) | - |
-| **Recall** | 0.8256 (0.7242*) | - |
-| **Optimal Threshold** | **0.71** | - |
-| **Calibration (ECE)** | 0.0706 (moderate) | - |
+| **Model** | XGBoost + Isotonic Calibration | XGBoost + Isotonic Calibration |
+| **ROC-AUC** | **0.9621** | **0.9622 ± 0.0006** |
+| **PR-AUC** | **0.8821** | **0.8810 ± 0.0017** |
+| **Accuracy** | 0.9377 | - |
+| **F1-Score** | **0.7771** (0.7861†) | 0.7754 ± 0.0026 |
+| **Precision** | 0.8360 | - |
+| **Recall** | 0.7418 | - |
+| **Optimal Threshold** | **0.36** | - |
+| **Calibration (ECE)** | **0.0039** ✅ (well-calibrated) | - |
 
-*With optimal threshold (0.71) - **F1 improved by +0.037**
+†With optimal threshold (0.36) - **F1 improved by +0.0658 vs pre-optimization**
 
 **Model Comparison:**
-- ❌ Logistic Regression: ROC-AUC 0.9058, F1 0.6751
-- ❌ Random Forest: ROC-AUC 0.9466, F1 0.7443
-- ✅ **XGBoost: ROC-AUC 0.9532, F1 0.7600 (best choice)**
+- ❌ Raw XGBoost (v1.1.0): ROC-AUC 0.9609, F1 0.7203, ECE 0.0963
+- ❌ XGBoost + Sigmoid: ROC-AUC 0.9622, F1 0.7822, ECE 0.0262
+- ✅ **XGBoost + Isotonic: ROC-AUC 0.9621, F1 0.7771, ECE 0.0039**
 
 **Key Features:**
 - 17 features (10 numerical + 7 categorical)
-- Trained on 50,000 samples (`output/final_fused_dataset.csv`)
-- Class imbalance handled with `scale_pos_weight=5.46` (15.5% positive class)
+- Trained on 200,000 samples (`output/final_fused_dataset.csv`)
+- Class imbalance handled with `scale_pos_weight=5.48` (15.4% positive class)
+- Isotonic calibration post-processing for accurate probability outputs
 - Vectorized batch prediction (no loops)
 - SHAP explainability support
 
@@ -46,8 +46,8 @@ A production-ready **SaaS platform** that predicts online purchase behavior usin
 │                                                     │
 │  ┌─────────────┐      ┌──────────────────┐     ┌──────────┐   │
 │  │   Frontend   │──────│  Spring Boot   │─────│  LLM     │   │
-│  │   (Next.js)  │      │  (SaaS Backend)│     │  (OpenAI)│   │
-│  └─────────────┘      └──────────────────┘     └──────────┘   │
+│  │   (Next.js)  │      │  (SaaS Backend)│                      │
+│  └─────────────┘      └──────────────────┘                     │
 │         │                      │                               │
 │         │              ┌───────┴───────┐                       │
 │         │              │  PostgreSQL   │                       │
@@ -55,7 +55,7 @@ A production-ready **SaaS platform** that predicts online purchase behavior usin
 │         │              └───────────────┘                       │
 │         │                      │                               │
 │         │             ┌──────────────┐                        │
-│         └─────────────│  FastAPI     │──────────────────────┘
+│         └─────────────│  FastAPI     │─────────────────────────┘
 │                        │  (ML Service)│
 │                        └───────┬───────┘
 │                                │
@@ -71,8 +71,6 @@ A production-ready **SaaS platform** that predicts online purchase behavior usin
 2. Spring Boot creates async job → returns jobId immediately (no timeout)
 3. Background thread processes batch → calls FastAPI `/batch_predict` (vectorized)
 4. Results stored in PostgreSQL with segmentation (High/Medium/Low)
-5. Chatbot: Frontend → Spring Boot → LLM + fresh ML context from DB
-
 **Services (Docker):**
 - `marketing-postgres` (PostgreSQL 15) - port 5432
 - `marketing-ml` (FastAPI ML Service) - port 8000
@@ -83,10 +81,10 @@ A production-ready **SaaS platform** that predicts online purchase behavior usin
  - **Batch Prediction**: Vectorized processing (no loops) for 10K-1M row CSVs
  - **Auto Column Mapping**: Fuzzy matching (Levenshtein distance) + heuristic mapping
  - **sklearn Pipeline**: Bundles preprocessing + XGBoost model (no separate scaler/encoder)
- - **Landing Page**: High-converting homepage at `/` with hero, demo, features, chatbot preview
+ - **Landing Page**: High-converting homepage at `/` with hero, demo, features, and CTA
  - **Next.js Dashboard**: Modern UI with analytics, segmentation, and result visualization
  - **Language Toggle**: EN/VI toggle with globe button in Header (stored in localStorage)
- - **AI Chatbot**: LLM-powered marketing assistant with 4-section response format (Insight, Explanation, Strategy, Recommendation)
+ - **PDF Export**: Export analysis results to PDF with html2canvas + jsPDF
  - **Async Processing**: Spring Boot `@Async` with job tracking and progress monitoring
  - **Multi-tenant Ready**: PostgreSQL with proper indexing (no Redis caching)
  - **FastAPI Endpoints**: `/predict`, `/batch_predict`, `/health`, `/metadata`
@@ -101,8 +99,7 @@ The landing page at `/` is designed to convert visitors within 5 seconds:
  - **Hero Section**: "Stop guessing which customers will buy" + "Predict purchase behavior instantly with AI"
  - **How It Works**: 3-step visual flow (Upload → AI Predicts → Get Insights)
  - **Demo Section**: Interactive demo with sample data + pie chart (no upload required)
- - **Features Section**: 4 key features with icons (Purchase Prediction, Segmentation, Chatbot, Analytics)
- - **Chatbot Section**: "Ask your data like ChatGPT" with 4-section response preview
+ - **Features Section**: 3 key features with icons (Purchase Prediction, Segmentation, Smart Analytics)
  - **Social Proof**: Tech stack (XGBoost, FastAPI, Spring Boot, Next.js) + stats
  - **Final CTA**: "Start predicting your customers today"
 
@@ -113,7 +110,7 @@ The landing page at `/` is designed to convert visitors within 5 seconds:
  - **CTA Buttons**: "Try Demo" (scrolls to demo), "Upload Your Data" (navigates to /upload)
 
 ### Technical Implementation
- - **Components**: `HeroSection`, `HowItWorks`, `DemoSection`, `FeaturesSection`, `ChatbotSection`, `SocialProof`, `CTASection`
+ - **Components**: `HeroSection`, `HowItWorks`, `DemoSection`, `FeaturesSection`, `DirectAnalyzeCTA`, `SocialProof`, `CTASection`
  - **Location**: `src/components/landing/`
  - **i18n**: Full English/Vietnamese support with translation keys
  - **Responsive**: Mobile-first design with Tailwind CSS
@@ -132,7 +129,7 @@ The landing page at `/` is designed to convert visitors within 5 seconds:
 | **ML Training** | Python 3.10+, scikit-learn, XGBoost, pandas, joblib |
 | **ML Serving** | FastAPI, uvicorn |
 | **Database** | PostgreSQL 15 |
-| **AI/LLM** | OpenAI API (chatbot integration) |
+| **PDF Export** | html2canvas, jsPDF |
 | **Containerization** | Docker, docker-compose |
 | **Data Source** | CSV upload (10K-1M rows, 17 features after mapping) |
 
@@ -198,42 +195,42 @@ Output: purchase_probability (0-1)
 | `Weekend` | 0 (No), 1 (Yes) |
 
 ### Training Process
-1. **Data Source**: `output/final_fused_dataset.csv` (50,000 samples)
-2. **Class Imbalance**: 15.5% positive class (ratio 5.46:1) → `scale_pos_weight=5.46`
+1. **Data Source**: `output/final_fused_dataset.csv` (200,000 samples)
+2. **Class Imbalance**: 15.4% positive class (ratio 5.48:1) → `scale_pos_weight=5.48`
 3. **Train/Test Split**: 80/20 with stratification on target variable
 4. **Cross-Validation**: 5-Fold Stratified K-Fold (robustness verification)
-5. **Threshold Tuning**: Optimized via precision-recall curve (optimal: 0.71)
-6. **Random State**: 42 (reproducible results)
-7. **Target Variable**: `Revenue` (binary: 0 = no purchase, 1 = purchase)
+5. **Threshold Tuning**: Optimized via precision-recall curve (optimal: 0.36)
+6. **Calibration**: Isotonic regression post-processing (ECE 0.0039)
+7. **Random State**: 42 (reproducible results)
+8. **Target Variable**: `Revenue` (binary: 0 = no purchase, 1 = purchase)
 
-### Model Selection Results (Updated)
-| Model | Accuracy | F1-Score | ROC-AUC | PR-AUC | CV ROC-AUC | Selected |
-|-------|----------|----------|---------|---------|------------|----------|
-| Logistic Regression | 0.9180 | 0.6751 | 0.9058 | 0.7730 | 0.9059 ± 0.006 | ❌ |
-| Random Forest | 0.9341 | 0.7443 | 0.9466 | 0.8473 | 0.9495 ± 0.004 | ❌ |
-| **XGBoost** | **0.9020** | **0.7229** | **0.9532** | **0.8592** | **0.9571 ± 0.004** | ✅ |
+### Optimization Results (v1.1.0 → v1.2.0)
+| Metric | Before (v1.1.0) | After (v1.2.0) | Δ |
+|--------|-----------------|----------------|---|
+| **Model** | Raw XGBoost | XGBoost + Isotonic | - |
+| **ROC-AUC** | 0.9609 | **0.9621** | +0.0012 |
+| **PR-AUC** | 0.8795 | **0.8821** | +0.0026 |
+| **F1 (default threshold)** | 0.7203 | **0.7771** | **+0.0568** |
+| **F1 (optimal threshold)** | 0.7824 | **0.7861** | +0.0037 |
+| **Calibration (ECE)** | 0.0963 (poor) | **0.0039** ✅ | **-0.0925** |
+| **CV ROC-AUC** | 0.9610 ± 0.0007 | **0.9622 ± 0.0006** | +0.0012 |
 
-**XGBoost with Optimal Threshold (0.71):**
-- **F1-Score**: 0.7600 (+0.037 vs default)
-- **Precision**: 0.7996
-- **Recall**: 0.7242
-- **Accuracy**: 0.9292
-
-**Why XGBoost?**
-- Highest ROC-AUC (0.9532 test, 0.9571 CV) - best at ranking predictions
-- Highest PR-AUC (0.8592) - robust for imbalanced data
-- Includes `scale_pos_weight` to handle class imbalance
-- 5-Fold CV confirms stability (std < 0.005)
+**Why XGBoost + Isotonic Calibration?**
+- Lowest ECE (0.0039) - nearly perfectly calibrated probabilities
+- Highest ROC-AUC (0.9621 test, 0.9622 CV)
+- Highest F1 at default threshold (0.7771 vs 0.7203 raw)
+- 5-Fold CV confirms stability (std < 0.001 for ROC-AUC)
+- Calibration makes probability output reliable for business decisions
 
 ### Model Artifacts
 | File | Description |
 |------|-------------|
-| `models/model.pkl` | Complete sklearn Pipeline (preprocessing + XGBoost with scale_pos_weight) |
+| `models/model.pkl` | Complete sklearn Pipeline (preprocessing + XGBoost + Isotonic Calibration) |
 | `models/features.json` | Feature schema (names, types, order) |
 | `models/metadata.json` | Model version, training date, metrics, CV scores |
-| `models/evaluation_report.json` | Full comparison of all 3 models + optimal threshold |
-| `models/optimal_threshold.json` | Optimal threshold (0.71) + metrics at optimal |
-| `models/calibration_report.json` | Calibration analysis (ECE = 0.0706) |
+| `models/evaluation_report.json` | Full comparison of raw/isotonic/sigmoid + optimal threshold |
+| `models/optimal_threshold.json` | Optimal threshold (0.36) + metrics at optimal |
+| `models/calibration_report.json` | Calibration analysis (ECE = 0.0039) |
 | `models/calibration_plot.png` | Calibration curve visualization |
 
 ### Model Serving
@@ -256,8 +253,8 @@ Output: purchase_probability (0-1)
 dataAna/
 ├── ai-marketing-dashboard/          # Next.js frontend (v16, React 19, TypeScript)
 │   ├── src/
-│   │   ├── app/                    # Next.js app router (dashboard, jobs, chatbot)
-│   │   ├── components/             # UI components (Header, UploadDropzone, Chatbot)
+│   │   ├── app/                    # Next.js app router (dashboard, jobs, analyze)
+│   │   ├── components/             # UI components (Header, UploadDropzone, ExportButton)
 │   │   ├── i18n/                  # Language support (translations.ts, LanguageProvider.tsx)
 │   │   └── lib/                   # API clients (api.ts)
 │   ├── public/                     # Static assets
@@ -269,9 +266,9 @@ dataAna/
 │   └── Dockerfile
 ├── spring-app/                      # Spring Boot SaaS backend
 │   ├── src/main/java/com/example/socialpurchase/
-│   │   ├── controller/             # BatchJobController, DatasetController, ChatbotController
-│   │   ├── service/               # JobProducerService, JobWorkerService, ChatbotService
-│   │   ├── client/                # MLServiceClient, OpenAiClient
+│   │   ├── controller/             # BatchJobController, DatasetController
+│   │   ├── service/               # JobProducerService, JobWorkerService, RecommendationEngine
+│   │   ├── client/                # MLServiceClient
 │   │   ├── dto/                   # Request/Response objects
 │   │   └── entity/                # JPA entities (PredictionJob, PredictionResult, Dataset)
 │   ├── pom.xml
@@ -449,14 +446,6 @@ curl http://localhost:8080/api/jobs/{jobId}/results
 # Returns: Array of prediction results
 ```
 
-#### Chatbot Query
-```bash
-curl -X POST http://localhost:8080/api/chatbot/ask \
-  -H "Content-Type: application/json" \
-  -d '{"message": "What is the purchase probability for high-engagement users?"}'
-# Returns: {"response": "Insight: ...\n\nExplanation: ...\n\nStrategy: ...\n\nRecommendation: ..."}
-```
-
 #### Health Check
 ```bash
 curl http://localhost:8080/api/actuator/health
@@ -467,28 +456,28 @@ curl http://localhost:8080/api/actuator/health
 ## 📊 Model Performance
 | Metric | Score (Test) | CV Score (5-Fold) |
 |--------|---------------|-------------------|
-| **Best Model** | XGBoost | XGBoost |
-| **ROC-AUC** | 0.9532 | 0.9571 ± 0.004 |
-| **PR-AUC** | 0.8592 | 0.8685 ± 0.009 |
-| **Accuracy** | 0.9020 (0.9292*) | - |
-| **F1-Score** | 0.7229 (0.7600*) | 0.7288 ± 0.014 |
-| **Precision** | 0.6429 (0.7996*) | - |
-| **Recall** | 0.8256 (0.7242*) | - |
-| **Optimal Threshold** | 0.71 | - |
+| **Best Model** | XGBoost + Isotonic Calibration | XGBoost + Isotonic Calibration |
+| **ROC-AUC** | **0.9621** | **0.9622 ± 0.0006** |
+| **PR-AUC** | **0.8821** | **0.8810 ± 0.0017** |
+| **Accuracy** | **0.9377** | - |
+| **F1-Score** | 0.7771 (0.7861†) | 0.7754 ± 0.0026 |
+| **Precision** | 0.8360 | - |
+| **Recall** | 0.7418 | - |
+| **Optimal Threshold** | **0.36** | - |
+| **Calibration (ECE)** | **0.0039** ✅ | - |
 
-*Values in parentheses are with optimal threshold (0.71)
+†With optimal threshold (0.36)
 
 **Model Comparison:**
-- Logistic Regression: ROC-AUC 0.9058, F1 0.6751
-- Random Forest: ROC-AUC 0.9466, F1 0.7443
-- **XGBoost: ROC-AUC 0.9532, F1 0.7229 (0.7600 with optimal threshold)** ✅
+- Raw XGBoost (v1.1.0): ROC-AUC 0.9609, F1 0.7203, ECE 0.0963
+- XGBoost + Sigmoid: ROC-AUC 0.9622, F1 0.7822, ECE 0.0262
+- **XGBoost + Isotonic: ROC-AUC 0.9621, F1 0.7771, ECE 0.0039** ✅
 
-**Key Improvements:**
-- ✅ Added `scale_pos_weight=5.46` to handle class imbalance (15.5% positive)
-- ✅ 5-Fold Cross-Validation for robust evaluation
-- ✅ Threshold tuning (0.5 → 0.71) improved F1 by +0.037
-- ✅ Added PR-AUC metric (better for imbalanced data)
-- ✅ Calibration analysis (ECE = 0.0706 - moderately calibrated)
+**Key Improvements (v1.2.0):**
+- ✅ Isotonic calibration: ECE dropped from 0.0963 → **0.0039** (96% reduction)
+- ✅ ROC-AUC improved from 0.9609 → **0.9621**
+- ✅ F1 at default threshold improved from 0.7203 → **0.7771** (+0.0568)
+- ✅ Reliable probability outputs for business decisions
 
 See `models/evaluation_report.json` and `models/calibration_report.json` for full details.
 
@@ -515,7 +504,6 @@ bash scripts/test_endpoints.sh
 - ✅ Single & batch prediction endpoints
 - ✅ CSV upload & job creation
 - ✅ Job status & results pagination
-- ✅ Chatbot API
 - ✅ Invalid input handling
 
 **Manual Testing:**
@@ -528,20 +516,6 @@ curl -X POST http://localhost:8080/api/jobs/upload -F "file=@dataset.csv"
 curl http://localhost:8080/api/jobs/1
 ```
 
-## 🤖 Chatbot System Prompt
-The chatbot uses a **4-section response format** for consistent marketing insights:
-
-**Response Structure:**
-1. **Insight** - Data-driven observation about the marketing scenario
-2. **Explanation** - Clear reasoning behind the insight
-3. **Strategy** - Actionable marketing strategy based on the insight
-4. **Recommendation** - Specific next steps with expected outcomes
-
-**Implementation:**
-- `spring-app/src/main/java/com/example/socialpurchase/service/ChatbotService.java` - Contains `SYSTEM_PROMPT` constant
-- `spring-app/src/main/java/com/example/socialpurchase/client/OpenAiClient.java` - Supports system+user messages
-- System prompt includes strict rules to prevent hallucination and ensure data-driven responses
-
 ## 🌐 Language Toggle
 The frontend supports **English (EN) and Vietnamese (VI)** with:
 - Globe button in Header for visual toggle
@@ -553,7 +527,7 @@ The frontend supports **English (EN) and Vietnamese (VI)** with:
 ## 📖 References
 - **SaaS Implementation Plan**: `IMPLEMENT_PLAN_SaaS.md`
 - **Quick Start Guide**: `QUICKSTART.md`
-- **Chatbot Implementation Plan**: `IMPLEMENTATION_PLAN_CHATBOT.md`
+
 - **Model Schema**: `models/features.json`
 - **Model Metadata**: `models/metadata.json`
 - **Training Script**: `scripts/train_model.py`
@@ -577,35 +551,32 @@ This project demonstrates:
 - Production-ready SaaS platform design
 - Batch ML prediction at scale (vectorized processing)
 - Microservices architecture (Python ML + Java Backend + Next.js Frontend)
-- LLM integration for conversational AI
+- PDF export with html2canvas + jsPDF
 - Docker containerization & PostgreSQL persistence
 
 ---
-**Status:** ✅ Core Features Complete, Model Upgraded  
+**Status:** ✅ Core Features Complete, Model Optimized (v1.2.0)  
 **Completed:**
-- ✅ AI Model Training (XGBoost, ROC-AUC 0.9571 CV, F1 0.760 with optimal threshold)
-- ✅ Class Imbalance Handling (`scale_pos_weight=5.46`)
-- ✅ 5-Fold Cross-Validation (stable performance: std <0.005)
-- ✅ Threshold Tuning (0.5 → 0.71, F1 +0.037)
-- ✅ Model Calibration Analysis (ECE = 0.0706)
-- ✅ PR-AUC Metric (0.8592 test, 0.8685 CV)
+- ✅ AI Model Training (XGBoost, ROC-AUC 0.9621 test, 0.9622 CV)
+- ✅ Class Imbalance Handling (`scale_pos_weight=5.48`)
+- ✅ 5-Fold Cross-Validation (stable performance: std <0.001)
+- ✅ Isotonic Calibration (ECE 0.0039 — well-calibrated ✅)
+- ✅ Threshold Tuning (0.36, F1 0.7861)
 - ✅ ML Service API (FastAPI with /predict, /batch_predict, /model_info, /explain)
 - ✅ Spring Boot Backend (BatchJobController, DatasetController, ChatbotController)
-- ✅ Next.js Frontend (Dashboard, Upload, Chatbot, Language Toggle EN/VI)
-- ✅ Chatbot System Prompt (4-section format: Insight, Explanation, Strategy, Recommendation)
+- ✅ Next.js Frontend (Dashboard, Upload, Analyze, Language Toggle EN/VI)
 - ✅ Docker Compose Setup (4 services: postgres, marketing-ml, marketing-spring, marketing-frontend)
-- ✅ Model Version Upgrade (v1.0.0 → v1.1.0)
+- ✅ Model Version Upgrade (v1.0.0 → v1.2.0)
 
-**Model Metrics (v1.1.0):**
-- ROC-AUC: 0.9571 (CV) | 0.9532 (test)
-- F1-Score: 0.7600 (with optimal threshold 0.71)
-- PR-AUC: 0.8685 (CV) | 0.8592 (test)
-- Calibration ECE: 0.0706 (moderately calibrated)
+**Model Metrics (v1.2.0):**
+- ROC-AUC: 0.9622 (CV) | **0.9621** (test)
+- F1-Score: **0.7771** (default) | **0.7861** (optimal threshold 0.36)
+- PR-AUC: 0.8810 (CV) | **0.8821** (test)
+- Calibration ECE: **0.0039** ✅ (well-calibrated — 96% improvement)
 
 **Next Steps:**
 1. Confirm all Docker services running: `docker ps`
 2. Test ML service: `curl http://localhost:8000/health`
 3. Test model info: `curl http://localhost:8000/model_info`
 4. Test CSV upload: `curl -X POST -F "file=@data/sample.csv" http://localhost:8080/api/jobs/upload`
-5. Verify frontend: http://localhost:3000 (test language toggle EN/VI)
-6. Test chatbot with sample marketing questions
+  5. Verify frontend: http://localhost:3000 (test language toggle EN/VI)

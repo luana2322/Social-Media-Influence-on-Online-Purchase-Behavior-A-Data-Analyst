@@ -34,10 +34,6 @@ export default function SettingsPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="openai-key">Khóa OpenAI API</Label>
-                <Input id="openai-key" type="password" placeholder="sk-..." className="rounded-xl" />
-              </div>
-              <div className="space-y-2">
                 <Label htmlFor="ml-service">URL dịch vụ ML</Label>
                 <Input id="ml-service" defaultValue="http://localhost:8000" className="rounded-xl" />
               </div>

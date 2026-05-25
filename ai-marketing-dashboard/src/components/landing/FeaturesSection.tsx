@@ -1,19 +1,19 @@
 "use client"
 
-import { Zap, Users, Bot, ArrowRight } from "lucide-react"
+import { Zap, Users, TrendingUp, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
 
 const iconMap: Record<string, typeof Zap> = {
   zap: Zap,
   users: Users,
-  bot: Bot,
+  "trending-up": TrendingUp,
 }
 
 const features = [
   { icon: "zap", title: "Dự đoán mua hàng", desc: "AI dự đoán khách hàng nào sẽ mua với độ chính xác 95.7%. Tập trung ngân sách vào đúng đối tượng." },
   { icon: "users", title: "Thông tin khách hàng", desc: "Tự động phân khúc khách hàng thành nhóm Nóng, Ấm và Lạnh với đề xuất hành động." },
-  { icon: "bot", title: "Trợ lý Marketing AI", desc: "Hỏi dữ liệu bằng tiếng Việt. Nhận thông tin, giải thích, chiến lược và đề xuất." },
+  { icon: "trending-up", title: "Phân tích thông minh", desc: "Tự động phát hiện xu hướng và cơ hội trong dữ liệu marketing của bạn." },
 ]
 
 export default function FeaturesSection() {

@@ -1,7 +1,7 @@
 import HeroSection from "@/components/landing/HeroSection"
 import DemoPreview from "@/components/landing/DemoPreview"
 import FeaturesSection from "@/components/landing/FeaturesSection"
-import ChatbotPreview from "@/components/landing/ChatbotPreview"
+import DirectAnalyzeCTA from "@/components/landing/DirectAnalyzeCTA"
 import CTASection from "@/components/landing/CTASection"
 
 export default function HomePage() {
@@ -10,7 +10,7 @@ export default function HomePage() {
       <HeroSection />
       <DemoPreview />
       <FeaturesSection />
-      <ChatbotPreview />
+      <DirectAnalyzeCTA />
       <CTASection />
     </div>
   )

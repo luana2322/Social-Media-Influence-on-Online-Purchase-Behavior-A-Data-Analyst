@@ -4,8 +4,6 @@ import type {
   AudienceSegment,
   Recommendation,
   AnalysisResult,
-  SuggestionPrompt,
-  ChatResponseSection,
 } from "@/types"
 
 export const kpiCards: KpiCard[] = [
@@ -144,40 +142,6 @@ export const recommendations: Recommendation[] = [
   },
 ]
 
-export const suggestionPrompts: SuggestionPrompt[] = [
-  { id: "p1", text: "Tại sao chuyển đổi giảm?", icon: "trending-down" },
-  { id: "p2", text: "Nhóm khách nào chuyển đổi tốt nhất?", icon: "users" },
-  { id: "p3", text: "Thời gian đăng bài tốt nhất?", icon: "clock" },
-  { id: "p4", text: "Chiến dịch nào hiệu quả nhất?", icon: "bar-chart" },
-]
-
-export const sampleChatResponseSections: ChatResponseSection[] = [
-  {
-    type: "insight",
-    icon: "chart-line",
-    title: "Thông tin",
-    content: "Chuyển đổi giảm 15% so với tuần trước. Sự sụt giảm tập trung vào lượng truy cập buổi sáng từ quảng cáo trả phí.",
-  },
-  {
-    type: "explanation",
-    icon: "search",
-    title: "Giải thích",
-    content: "Việc tạm dừng quảng cáo thứ Hai đã giảm 40% lượng truy cập buổi sáng. Thứ Ba đến Thứ Năm cũng giảm 25% tương tác từ đối tượng quảng cáo.",
-  },
-  {
-    type: "strategy",
-    icon: "target",
-    title: "Chiến lược",
-    content: "Khởi động lại quảng cáo buổi sáng ngay lập tức. Thêm thông báo đẩy buổi tối (7-9 PM) khi chuyển đổi đỉnh 48%.",
-  },
-  {
-    type: "recommendation",
-    icon: "sparkles",
-    title: "Đề xuất",
-    content: "Chạy flash sale Thứ Tư này lúc 8PM nhắm phân khúc khách nóng (17,500 khách hàng). Dự kiến phục hồi: +$89K.",
-  },
-]
-
 export const landingFeatures = [
   {
     title: "Dự đoán mua hàng",
@@ -190,9 +154,9 @@ export const landingFeatures = [
     icon: "users",
   },
   {
-    title: "Trợ lý Marketing AI",
-    description: "Hỏi dữ liệu bằng tiếng Việt. Nhận thông tin, giải thích, chiến lược và đề xuất.",
-    icon: "bot",
+    title: "Phân tích thông minh",
+    description: "Tự động phát hiện xu hướng và cơ hội trong dữ liệu marketing của bạn.",
+    icon: "trending-up",
   },
 ]
 

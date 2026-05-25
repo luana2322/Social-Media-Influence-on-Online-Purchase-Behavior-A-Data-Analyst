@@ -4,10 +4,11 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Upload, Sparkles, BarChart3, Clock, ArrowRight, Database, ShoppingCart, DollarSign, Users, TrendingUp, MessageSquare, ArrowLeft } from "lucide-react"
+import { Upload, Sparkles, BarChart3, Clock, ArrowRight, Database, ShoppingCart, DollarSign, Users, TrendingUp, ArrowLeft } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { getMyJobs, getAnalysisSummary, type Job, type AnalysisSummaryData } from "@/lib/api"
 import { useAuth } from "@/context/AuthContext"
+import { ExportButton } from "@/components/export/ExportButton"
 
 const statusConfig: Record<string, { label: string; color: string }> = {
   pending: { label: "Đang chờ", color: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300" },
@@ -208,10 +209,10 @@ export default function HistoryPage() {
                         </CardContent>
                       </Card>
                     ) : jobDetail ? (
-                      <>
+                      <div id={`print-job-${job.id}`} className="space-y-3">
                         <Card className="rounded-2xl border-green-200 dark:border-green-900 bg-green-50/50 dark:bg-green-950/20">
                           <CardContent className="pt-5 pb-5">
-                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
                               <div className="bg-background rounded-xl p-3">
                                 <ShoppingCart className="h-4 w-4 text-violet-500 mb-1" />
                                 <p className="text-xs text-muted-foreground">Chuyển đổi</p>
@@ -231,8 +232,20 @@ export default function HistoryPage() {
                               <div className="bg-background rounded-xl p-3">
                                 <TrendingUp className="h-4 w-4 text-orange-500 mb-1" />
                                 <p className="text-xs text-muted-foreground">Kênh tốt nhất</p>
-                                <p className="text-lg font-bold truncate">{jobDetail.channels[0]?.name || "—"}</p>
-                                <p className="text-xs text-green-600">{jobDetail.channels[0]?.pct || 0}%</p>
+                                <p className="text-lg font-bold truncate">
+                                  {jobDetail.channelPerformance?.[0]?.name || jobDetail.channels[0]?.name || "—"}
+                                </p>
+                                <p className="text-xs text-green-600">
+                                  {jobDetail.channelPerformance?.[0]?.conversionRate || (jobDetail.channels[0]?.pct ? `${jobDetail.channels[0].pct}%` : "")}
+                                </p>
+                              </div>
+                              <div className="bg-background rounded-xl p-3">
+                                <Database className="h-4 w-4 text-cyan-500 mb-1" />
+                                <p className="text-xs text-muted-foreground">Đầy đủ</p>
+                                <p className="text-lg font-bold">
+                                  {jobDetail.completenessScore != null ? `${jobDetail.completenessScore}%` : "—"}
+                                </p>
+                                <p className="text-xs text-green-600">Dữ liệu</p>
                               </div>
                             </div>
                           </CardContent>
@@ -257,6 +270,30 @@ export default function HistoryPage() {
                                     </div>
                                     <span className="text-muted-foreground w-24 text-right text-xs">
                                       {seg.count.toLocaleString()} ({seg.pct}%)
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            </CardContent>
+                          </Card>
+                        )}
+
+                        {jobDetail.channelPerformance && jobDetail.channelPerformance.length > 0 && (
+                          <Card className="rounded-2xl border-blue-200 dark:border-blue-800">
+                            <CardContent className="pt-5 pb-5">
+                              <h4 className="text-sm font-semibold mb-3">Chuyển đổi theo kênh</h4>
+                              <div className="space-y-2">
+                                {jobDetail.channelPerformance.map((ch) => (
+                                  <div key={ch.name} className="flex items-center gap-3 text-sm">
+                                    <span className="text-sm font-medium w-24 truncate capitalize">{ch.name}</span>
+                                    <div className="flex-1 h-5 bg-accent rounded-full overflow-hidden">
+                                      <div
+                                        className="h-full rounded-full bg-gradient-to-r from-blue-400 to-blue-500"
+                                        style={{ width: `${parseFloat(ch.conversionRate)}%` }}
+                                      />
+                                    </div>
+                                    <span className="text-xs text-muted-foreground w-20 text-right">
+                                      {ch.conversions}/{ch.totalCount} ({ch.conversionRate})
                                     </span>
                                   </div>
                                 ))}
@@ -298,15 +335,19 @@ export default function HistoryPage() {
                           >
                             <ArrowLeft className="h-3 w-3 mr-1" /> Thu gọn
                           </Button>
+                          <ExportButton
+                            targetId={`print-job-${job.id}`}
+                            fileName={`ket-qua-job-${job.id}`}
+                          />
                           <Button
                             size="sm"
                             className="rounded-xl bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white hover:from-violet-600 hover:to-fuchsia-600"
-                            onClick={() => router.push("/assistant")}
+                            onClick={() => router.push("/analyze")}
                           >
-                            <MessageSquare className="h-3 w-3 mr-1" /> Chat với AI
+                            <Upload className="h-3 w-3 mr-1" /> Phân tích mới
                           </Button>
                         </div>
-                      </>
+                      </div>
                     ) : (
                       <Card className="rounded-2xl">
                         <CardContent className="flex flex-col items-center py-8 gap-3">

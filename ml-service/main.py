@@ -23,7 +23,7 @@ models_cache = {}
 features_cache = {}
 metadata_cache = {}
 threshold_cache = {}
-DEFAULT_VERSION = "1.0.0"
+DEFAULT_VERSION = "1.2.0"
 
 class BatchRecord(BaseModel):
     recordId: str
@@ -174,7 +174,7 @@ async def get_model_info(datasetType: str = "GENERAL"):
         "model_type": meta.get('model_type'),
         "version": meta.get('version', DEFAULT_VERSION),
         "optimal_threshold": thresh,
-        "calibration": None
+        "calibration": meta.get('calibration')
     }
 
 @app.post("/predict", response_model=SinglePredictionResponse)
@@ -293,7 +293,15 @@ async def explain_prediction(
 
         try:
             import shap
-            explainer = shap.TreeExplainer(model.named_steps['classifier'])
+            classifier = model.named_steps['classifier']
+            # Handle CalibratedClassifierCV wrapper
+            if hasattr(classifier, 'base_estimator'):
+                base_clf = classifier.base_estimator
+            elif hasattr(classifier, 'calibrated_classifiers_'):
+                base_clf = classifier.calibrated_classifiers_[0].base_estimator
+            else:
+                base_clf = classifier
+            explainer = shap.TreeExplainer(base_clf)
             preprocessed = model.named_steps['preprocessor'].transform(df)
             shap_values = explainer.shap_values(preprocessed)
             if isinstance(shap_values, list):

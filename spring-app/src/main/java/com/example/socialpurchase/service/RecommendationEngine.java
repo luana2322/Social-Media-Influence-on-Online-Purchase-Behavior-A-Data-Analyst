@@ -6,6 +6,7 @@ import com.example.socialpurchase.entity.PredictionResult;
 import com.example.socialpurchase.repository.AnalysisSummaryRepository;
 import com.example.socialpurchase.repository.PredictionJobRepository;
 import com.example.socialpurchase.repository.PredictionResultRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.*;
@@ -17,6 +18,7 @@ public class RecommendationEngine {
     @Autowired private PredictionResultRepository predictionResultRepository;
     @Autowired private AnalysisSummaryRepository analysisSummaryRepository;
     @Autowired private PredictionJobRepository predictionJobRepository;
+    @Autowired private ObjectMapper objectMapper;
 
     public void generateAndSave(Long jobId) {
         List<PredictionResult> results = predictionResultRepository.findByJobId(jobId);
@@ -35,63 +37,64 @@ public class RecommendationEngine {
         long conversions = results.stream().filter(r -> r.getProbability() > 0.8).count();
         double conversionRate = total > 0 ? (conversions * 100.0 / total) : 0;
 
-        Map<String, Long> segmentDist = new LinkedHashMap<>();
-        segmentDist.put("High", highCount);
-        segmentDist.put("Medium", mediumCount);
-        segmentDist.put("Low", lowCount);
+        List<Map<String, Object>> segments = List.of(
+            Map.of("name", "hot", "count", highCount, "pct", Math.round(highPct)),
+            Map.of("name", "warm", "count", mediumCount, "pct", Math.round(mediumPct)),
+            Map.of("name", "cold", "count", lowCount, "pct", Math.round(lowPct))
+        );
 
         List<String> recommendations = new ArrayList<>();
 
         if (highPct > 20) {
             recommendations.add(String.format(
-                    "%.0f%% sessions have >80%% purchase probability. Action: Target these users with limited-time offers before they leave.",
+                    "%.0f%% khách hàng thuộc phân khúc nóng (>80%% xác suất mua). Hành động: Nhắm flash sale 24h qua email + SMS.",
                     highPct));
         } else if (highPct > 5) {
             recommendations.add(String.format(
-                    "%.0f%% sessions show high purchase intent. Action: Send personalized product recommendations to this segment.",
+                    "%.0f%% khách hàng có ý định mua cao. Hành động: Gửi đề xuất sản phẩm cá nhân hóa tới phân khúc này.",
                     highPct));
         } else {
             recommendations.add(String.format(
-                    "Only %.0f%% sessions have high purchase probability. Consider improving targeting or increasing high-intent traffic.",
+                    "Chỉ %.0f%% khách hàng có xác suất mua cao. Cân nhắc cải thiện targeting hoặc tăng traffic chất lượng.",
                     highPct));
         }
 
         if (lowPct > 50) {
             recommendations.add(String.format(
-                    "%.0f%% sessions have low purchase probability. Action: Run retargeting campaigns with social proof ads and testimonials.",
+                    "%.0f%% khách hàng có xác suất mua thấp. Hành động: Chạy retargeting với quảng cáo bằng chứng xã hội và đánh giá.",
                     lowPct));
         } else if (lowPct > 30) {
             recommendations.add(String.format(
-                    "%.0f%% sessions are low probability. Action: Nurture with brand awareness content and educational emails.",
+                    "%.0f%% khách hàng xác suất thấp. Hành động: Nuôi dưỡng bằng nội dung nhận thức thương hiệu và email giáo dục.",
                     lowPct));
         }
 
         if (mediumPct > 30) {
             recommendations.add(String.format(
-                    "%.0f%% sessions are in the medium segment (potential converters). Action: Offer free shipping or limited-time discounts.",
+                    "%.0f%% khách hàng ở phân khúc ấm (tiềm năng chuyển đổi). Hành động: Miễn phí vận chuyển hoặc giảm giá có thời hạn.",
                     mediumPct));
         }
 
         if (avgProb < 0.3) {
             recommendations.add(
-                    "Overall purchase probability is low. Consider: (a) optimizing landing page UX, (b) improving ad targeting, (c) running A/B tests on checkout flow.");
+                    "Xác suất mua tổng thể thấp. Cân nhắc: (a) tối ưu UX landing page, (b) cải thiện targeting quảng cáo, (c) chạy A/B test luồng thanh toán.");
         } else if (avgProb > 0.5) {
             recommendations.add(
-                    "Overall purchase probability is high. Maintain current strategy and focus on upselling and cross-selling to maximize revenue.");
+                    "Xác suất mua tổng thể cao. Duy trì chiến lược hiện tại, tập trung upselling và cross-selling để tối đa doanh thu.");
         }
 
         if (conversionRate > 15) {
             recommendations.add(String.format(
-                    "Estimated conversion rate: %.1f%%. Action: Analyze top-performing channels and allocate more budget there.",
+                    "Tỷ lệ chuyển đổi ước tính: %.1f%%. Hành động: Phân tích kênh hiệu suất cao nhất và phân bổ thêm ngân sách.",
                     conversionRate));
         } else {
             recommendations.add(String.format(
-                    "Estimated conversion rate: %.1f%%. Action: Identify friction points in the customer journey and run conversion rate optimization tests.",
+                    "Tỷ lệ chuyển đổi ước tính: %.1f%%. Hành động: Xác định điểm nghẽn trong hành trình khách hàng và tối ưu.",
                     conversionRate));
         }
 
         recommendations.add(
-                "Monitor predictions over time: schedule recurring uploads to track changes in segment distribution and measure campaign impact.");
+                "Theo dõi dự đoán theo thời gian: lên lịch upload định kỳ để theo dõi thay đổi phân phối phân khúc và đo lường tác động chiến dịch.");
 
         AnalysisSummary summary = analysisSummaryRepository.findByJobId(jobId)
                 .orElse(new AnalysisSummary());
@@ -99,8 +102,13 @@ public class RecommendationEngine {
         summary.setTotalRows((int) total);
         summary.setConversions((int) conversions);
         summary.setConversionRate(String.format("%.2f%%", conversionRate));
-        summary.setSegments(segmentDist.toString());
-        summary.setRecommendations(recommendations.toString());
+        try {
+            summary.setSegments(objectMapper.writeValueAsString(segments));
+            summary.setRecommendations(objectMapper.writeValueAsString(recommendations));
+        } catch (Exception e) {
+            summary.setSegments(segments.toString());
+            summary.setRecommendations(recommendations.toString());
+        }
         summary.setChannels("[]");
         analysisSummaryRepository.save(summary);
     }

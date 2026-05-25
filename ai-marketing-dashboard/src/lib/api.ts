@@ -96,21 +96,6 @@ export async function getJobResults(jobId: number): Promise<PredictionResult[]> 
   return response.json()
 }
 
-export async function askChatbot(question: string, jobId: number): Promise<string> {
-  const response = await fetch(`${API_BASE}/chatbot/ask`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
-    body: JSON.stringify({ question, jobId }),
-  })
-
-  if (!response.ok) {
-    throw new Error(`Chatbot request failed: ${response.statusText}`)
-  }
-
-  const data = await response.json()
-  return data.answer
-}
-
 export interface AnalysisSummaryData {
   totalRows: number
   conversions: number
@@ -119,6 +104,8 @@ export interface AnalysisSummaryData {
   segments: { name: string; count: number; pct: number }[]
   channels: { name: string; count: number; pct: number }[]
   recommendations: string[]
+  channelPerformance?: { name: string; totalCount: number; conversions: number; conversionRate: string }[]
+  completenessScore?: number
 }
 
 export async function saveAnalysisSummary(jobId: number, data: AnalysisSummaryData): Promise<void> {
@@ -137,6 +124,15 @@ export async function getAnalysisSummary(jobId: number): Promise<AnalysisSummary
   if (!response.ok) return null
   const data = await response.json()
   if (data.message) return null
+  if (typeof data.segments === "string") {
+    try { data.segments = JSON.parse(data.segments) } catch { data.segments = [] }
+  }
+  if (typeof data.channels === "string") {
+    try { data.channels = JSON.parse(data.channels) } catch { data.channels = [] }
+  }
+  if (typeof data.recommendations === "string") {
+    try { data.recommendations = JSON.parse(data.recommendations) } catch { data.recommendations = [] }
+  }
   return data
 }
 

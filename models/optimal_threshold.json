@@ -1,17 +1,17 @@
 {
-  "optimal_threshold": 0.7783738970756531,
-  "optimal_f1": 0.782427504725393,
-  "precision_at_optimal": 0.8430308699719364,
-  "recall_at_optimal": 0.7299530212214482,
-  "accuracy_at_optimal": 0.93735,
+  "optimal_threshold": 0.36358715295791627,
+  "optimal_f1": 0.7860944205510368,
+  "precision_at_optimal": 0.8360416286288114,
+  "recall_at_optimal": 0.7417787137534424,
+  "accuracy_at_optimal": 0.9377,
   "confusion_matrix_optimal": [
     [
-      32988,
-      839
+      32929,
+      898
     ],
     [
-      1667,
-      4506
+      1594,
+      4579
     ]
   ]
 }

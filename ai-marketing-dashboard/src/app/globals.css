@@ -128,3 +128,22 @@
     @apply font-sans;
   }
 }
+
+@media print {
+  @page { margin: 12mm; size: A4; }
+  body { background: white !important; color: black !important; }
+  nav, .sidebar, .no-print, header, footer { display: none !important; }
+  .print-only { display: block !important; }
+  .print-header {
+    position: fixed; top: 0; left: 0; right: 0;
+    text-align: center; font-size: 9pt; color: #666;
+    border-bottom: 1px solid #ddd; padding: 4mm 0;
+  }
+  .print-footer {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    text-align: center; font-size: 8pt; color: #999;
+  }
+  .print-page { page-break-before: always; }
+  .print-no-break { page-break-inside: avoid; }
+  a { color: black !important; text-decoration: none !important; }
+}

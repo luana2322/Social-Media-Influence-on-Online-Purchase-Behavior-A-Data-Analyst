@@ -34,19 +34,6 @@ export interface Recommendation {
   cta: string
 }
 
-export interface ChatMessage {
-  role: "user" | "assistant"
-  content: string
-  sections?: ChatResponseSection[]
-}
-
-export interface ChatResponseSection {
-  type: "insight" | "explanation" | "strategy" | "recommendation"
-  icon: string
-  title: string
-  content: string
-}
-
 export interface AnalysisResult {
   totalCustomers: number
   highIntent: number
@@ -59,8 +46,4 @@ export interface AnalysisResult {
   accuracy: string
 }
 
-export interface SuggestionPrompt {
-  id: string
-  text: string
-  icon: string
-}
+

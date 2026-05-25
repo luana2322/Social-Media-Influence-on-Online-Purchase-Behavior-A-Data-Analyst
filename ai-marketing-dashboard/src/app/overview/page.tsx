@@ -8,6 +8,7 @@ import { KpiCards } from "@/components/overview/KpiCards"
 import { InsightsFeed } from "@/components/overview/InsightsFeed"
 import { RecommendationsSection } from "@/components/overview/RecommendationsSection"
 import { AudienceSegments } from "@/components/overview/AudienceSegments"
+import { ExportButton } from "@/components/export/ExportButton"
 
 const workflowSteps = [
   { icon: Upload, title: "Tải dữ liệu", desc: "Tải CSV khách hàng, chiến dịch hoặc dữ liệu mạng xã hội" },
@@ -28,7 +29,11 @@ export default function OverviewPage() {
   const router = useRouter()
 
   return (
-    <div className="flex flex-col gap-8">
+    <div id="print-overview" className="flex flex-col gap-8">
+      <div className="flex justify-end no-print">
+        <ExportButton targetId="print-overview" fileName="tong-quan-marketing" />
+      </div>
+
       {/* Demo Banner */}
       <div className="rounded-2xl border border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/20 p-5 flex items-start gap-4">
         <div className="h-10 w-10 rounded-xl bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center shrink-0">
@@ -190,9 +195,9 @@ export default function OverviewPage() {
               variant="outline"
               size="lg"
               className="rounded-xl"
-              onClick={() => router.push("/assistant")}
+              onClick={() => router.push("/overview")}
             >
-              Hỏi trợ lý AI
+              Xem tổng quan
               <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
           </div>
