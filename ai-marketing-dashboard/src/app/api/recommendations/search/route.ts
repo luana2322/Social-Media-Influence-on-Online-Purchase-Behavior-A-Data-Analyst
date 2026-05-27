@@ -35,15 +35,19 @@ const FALLBACK_ARTICLES: { title: string; url: string; snippet: string; source: 
 
 function getFallbackArticles(query: string, count = 6): { title: string; url: string; snippet: string; source: string }[] {
   const q = query.toLowerCase()
+  const qWords = q.split(/\s+/).filter(Boolean)
   const scored = FALLBACK_ARTICLES.map((a) => {
-    const matchCount = a.keywords.filter((k) => q.includes(k) || k.includes(q)).length
-    const bonus = a.title.toLowerCase().includes(q) ? 2 : 0
-    return { ...a, score: matchCount + bonus + Math.random() * 0.3 }
+    const title = a.title.toLowerCase()
+    const snippet = a.snippet.toLowerCase()
+    let matchCount = a.keywords.filter((k) => q.includes(k) || k.includes(q)).length
+    const wordMatchCount = qWords.filter((w) => title.includes(w) || snippet.includes(w)).length
+    matchCount += wordMatchCount * 0.5
+    const bonus = title.includes(q) ? 2 : 0
+    return { ...a, score: matchCount + bonus }
   })
   return scored
     .sort((a, b) => b.score - a.score)
     .slice(0, count)
-    .filter((a) => a.score > 0)
     .map(({ keywords: _, score: __, ...rest }) => rest)
 }
 
@@ -72,8 +76,8 @@ export async function POST(req: NextRequest) {
         }))
         return NextResponse.json({ articles, source: "serper" })
       }
-    } catch {
-      // fall through to fallback
+    } catch (e) {
+      console.error("Serper API error:", e)
     }
   }
 

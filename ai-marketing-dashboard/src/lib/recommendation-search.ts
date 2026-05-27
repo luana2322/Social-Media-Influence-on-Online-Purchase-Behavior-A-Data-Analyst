@@ -43,7 +43,8 @@ export async function fetchArticles(query: string): Promise<SearchArticle[]> {
     })
     const data = await res.json()
     return data.articles || []
-  } catch {
+  } catch (e) {
+    console.error("fetchArticles error for query:", query, e)
     return []
   }
 }
@@ -58,6 +59,7 @@ export async function pickRelevantArticles(analysis: AnalysisSnapshot, count = 4
     const articles = await fetchArticles(q)
     for (const a of articles) {
       if (results.length >= count) break
+      if (!a.url) continue
       if (!seen.has(a.url)) {
         seen.add(a.url)
         results.push(a)

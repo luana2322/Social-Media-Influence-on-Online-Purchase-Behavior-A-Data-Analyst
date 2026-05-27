@@ -156,9 +156,15 @@ export default function AnalyzePage() {
     if (!results || step !== 3) return
     setArticlesLoading(true)
     const timer = setTimeout(async () => {
-      const found = await pickRelevantArticles(results, 4)
-      setArticles(found)
-      setArticlesLoading(false)
+      try {
+        const found = await pickRelevantArticles(results, 4)
+        setArticles(found)
+      } catch (e) {
+        console.error("Error fetching reference articles:", e)
+        setArticles([])
+      } finally {
+        setArticlesLoading(false)
+      }
     }, 600)
     return () => clearTimeout(timer)
   }, [results, step])
@@ -501,36 +507,6 @@ export default function AnalyzePage() {
             <>
               <Card className="rounded-2xl border-emerald-200 dark:border-emerald-800">
                 <CardContent className="pt-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-semibold">Phân bố theo giờ</h3>
-                    {results.temporal.dateRange && (
-                      <span className="text-xs text-muted-foreground">
-                        {results.temporal.dateRange.start} → {results.temporal.dateRange.end}
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex items-end gap-0.5 h-24">
-                    {(() => {
-                      const hd = results.temporal!.hourlyDistribution
-                      const maxCount = Math.max(...hd.map((x) => x.count), 1)
-                      return hd.map((h) => (
-                        <div key={h.hour} className="flex-1 flex flex-col items-center gap-1">
-                          <div
-                            className="w-full bg-emerald-400 dark:bg-emerald-600 rounded-t transition-all"
-                            style={{ height: `${(h.count / maxCount) * 100}%` }}
-                          />
-                          {h.hour % 3 === 0 && (
-                            <span className="text-[8px] text-muted-foreground">{h.hour}h</span>
-                          )}
-                        </div>
-                      ))
-                    })()}
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="rounded-2xl border-emerald-200 dark:border-emerald-800">
-                <CardContent className="pt-6">
                   <h3 className="font-semibold mb-4">Phân bố theo thứ</h3>
                   <div className="space-y-2">
                     {(() => {
@@ -584,7 +560,7 @@ export default function AnalyzePage() {
               </div>
               {articlesLoading ? (
                 <p className="text-sm text-muted-foreground animate-pulse">Đang tìm bài viết tham khảo...</p>
-              ) : (
+              ) : articles.length > 0 ? (
                 <div className="space-y-3">
                   {articles.map((a, i) => (
                     <a
@@ -603,6 +579,8 @@ export default function AnalyzePage() {
                     </a>
                   ))}
                 </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">Không tìm thấy bài viết tham khảo phù hợp.</p>
               )}
             </CardContent>
           </Card>
