@@ -405,7 +405,7 @@ export default function AnalyzePage() {
                   <DollarSign className="h-5 w-5 text-emerald-500 mb-2" />
                   <p className="text-sm text-muted-foreground">Doanh thu</p>
                   <p className="text-2xl font-bold mt-1">{results.revenue}</p>
-                  <p className="text-xs text-green-600">Dự kiến</p>
+                  <p className="text-xs text-green-600">Trung bình/khách</p>
                 </div>
                 <div className="bg-background rounded-xl p-4">
                   <Users className="h-5 w-5 text-blue-500 mb-2" />

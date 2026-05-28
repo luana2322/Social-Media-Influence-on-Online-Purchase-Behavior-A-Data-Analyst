@@ -335,9 +335,10 @@ export function analyzeData(parsed: ParsedCSV): AnalysisResult {
   let revenue = "—"
   if (revenueCol) {
     const idx = parsed.headers.indexOf(revenueCol.name)
-    const sum = parsed.rows.reduce((s, r) => s + (Number(r[idx]) || 0), 0)
-    if (sum > 0) {
-      revenue = sum >= 1000000 ? `$${(sum / 1000000).toFixed(2)}M` : sum >= 1000 ? `$${(sum / 1000).toFixed(1)}K` : `$${sum.toFixed(0)}`
+    const nums = parsed.rows.map(r => Number(r[idx])).filter(n => !isNaN(n) && n > 0)
+    if (nums.length > 0) {
+      const avg = nums.reduce((s, v) => s + v, 0) / nums.length
+      revenue = `$${avg.toFixed(2)}/khách`
     } else {
       warnings.push(`Tổng doanh thu từ "${revenueCol.name}" bằng 0 — kiểm tra lại dữ liệu`)
     }
