@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Upload, CheckCircle2, BarChart3, Sparkles, ArrowRight, ArrowLeft, UploadCloud, ShoppingCart, Users, DollarSign, TrendingUp, AlertTriangle, BookOpen, ExternalLink } from "lucide-react"
+import { Upload, CheckCircle2, BarChart3, Sparkles, ArrowRight, ArrowLeft, UploadCloud, ShoppingCart, Users, DollarSign, TrendingUp, BookOpen, ExternalLink } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
@@ -431,25 +431,6 @@ export default function AnalyzePage() {
               </div>
             </CardContent>
           </Card>
-
-          {/* Warnings */}
-          {results.warnings?.length > 0 && (
-            <Card className="rounded-2xl border-amber-200 dark:border-amber-800 bg-amber-50/80 dark:bg-amber-950/20">
-              <CardContent className="pt-4 pb-4">
-                <div className="flex items-start gap-3">
-                  <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
-                  <div>
-                    <h4 className="font-semibold text-amber-800 dark:text-amber-300 text-sm">Lưu ý về dữ liệu</h4>
-                    <ul className="text-sm text-amber-700 dark:text-amber-400 mt-1 space-y-1">
-                      {results.warnings.map((w, i) => (
-                        <li key={i}>• {w}</li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
 
           {/* Segments */}
           <Card className="rounded-2xl">

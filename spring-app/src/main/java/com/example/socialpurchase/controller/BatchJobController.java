@@ -95,10 +95,18 @@ public class BatchJobController {
 
     @GetMapping("/my-jobs")
     public ResponseEntity<?> getMyJobs(Authentication authentication) {
-        User user = userRepository.findByUsername(authentication.getName())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        List<PredictionJob> jobs = predictionJobRepository.findByUserIdOrderByCreatedAtDesc(user.getId());
-        return ResponseEntity.ok().body(jobs);
+        try {
+            if (authentication == null || authentication.getName() == null) {
+                return ResponseEntity.status(401).body(Map.of("error", "Not authenticated"));
+            }
+            User user = userRepository.findByUsername(authentication.getName())
+                    .orElseThrow(() -> new RuntimeException("User not found: " + authentication.getName()));
+            List<PredictionJob> jobs = predictionJobRepository.findByUserIdOrderByCreatedAtDesc(user.getId());
+            return ResponseEntity.ok().body(jobs);
+        } catch (Exception e) {
+            logger.severe("Error fetching my jobs: " + e.getMessage());
+            return ResponseEntity.status(500).body(Map.of("error", "Failed to fetch jobs: " + e.getMessage()));
+        }
     }
 
     @PostMapping("/{jobId}/analysis-summary")

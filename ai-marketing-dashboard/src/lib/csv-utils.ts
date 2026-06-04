@@ -266,7 +266,7 @@ function isBinaryColumn(values: string[]): boolean {
 
 export function analyzeData(parsed: ParsedCSV): AnalysisResult {
   const total = parsed.totalRows
-  const warnings: string[] = []
+  const warnings: string[] = [] as string[]
 
   const completenessScore = parsed.completeness.length > 0
     ? +(parsed.completeness.reduce((s, c) => s + c.pct, 0) / parsed.completeness.length).toFixed(0)
@@ -292,7 +292,7 @@ export function analyzeData(parsed: ParsedCSV): AnalysisResult {
       const idx = parsed.headers.indexOf(c.name)
       return isBinaryColumn(parsed.rows.map((r) => r[idx]))
     })
-    if (convCol) warnings.push(`Cột "${convCol.name}" được phát hiện là dữ liệu nhị phân — đang dùng làm cột chuyển đổi`)
+    // detected binary column used as conversion
   }
 
   // --- Count Conversions ---
@@ -302,7 +302,6 @@ export function analyzeData(parsed: ParsedCSV): AnalysisResult {
     conversions = parsed.rows.filter((r) => isConversionValue(r[idx])).length
   }
 
-  if (!convCol) warnings.push("Không tìm thấy cột chuyển đổi — tỷ lệ chuyển đổi sẽ là 0%")
   const conversionRate = total > 0 ? ((conversions / total) * 100).toFixed(1) : "0"
 
   // --- Detect Revenue Column (value-aware) ---
@@ -314,7 +313,6 @@ export function analyzeData(parsed: ParsedCSV): AnalysisResult {
       if (!convCol) {
         convCol = revenueCol
         conversions = vals.filter((n) => n > 0).length
-        warnings.push(`Cột "${revenueCol.name}" chứa giá trị 0/1 — đang dùng làm cột chuyển đổi thay vì doanh thu`)
       }
       revenueCol = undefined
     }
@@ -328,7 +326,6 @@ export function analyzeData(parsed: ParsedCSV): AnalysisResult {
     })
     if (highValCol) {
       revenueCol = highValCol
-      warnings.push(`Cột "${revenueCol.name}" có giá trị lớn — đang dùng làm cột doanh thu`)
     }
   }
 
@@ -340,10 +337,8 @@ export function analyzeData(parsed: ParsedCSV): AnalysisResult {
       const avg = nums.reduce((s, v) => s + v, 0) / nums.length
       revenue = `$${avg.toFixed(2)}/khách`
     } else {
-      warnings.push(`Tổng doanh thu từ "${revenueCol.name}" bằng 0 — kiểm tra lại dữ liệu`)
     }
   } else {
-    warnings.push("Không tìm thấy cột doanh thu — chỉ số doanh thu sẽ không hiển thị")
   }
 
   // --- Detect Segment Column (value-aware, skip non-segment values) ---
@@ -353,7 +348,6 @@ export function analyzeData(parsed: ParsedCSV): AnalysisResult {
     const values = [...new Set(parsed.rows.map((r) => r[idx]?.trim().toLowerCase()).filter(Boolean))]
     const nonSegmentRatio = values.length > 0 ? values.filter((v) => NON_SEGMENT_VALUES.has(v)).length / values.length : 0
     if (nonSegmentRatio > 0.5) {
-      warnings.push(`Cột "${segCol.name}" chứa giá trị thiết bị/trình duyệt (${values.slice(0, 4).join(", ")}) — đang dùng phân khúc theo chỉ số hành vi thay vì danh mục này`)
       segCol = undefined
     }
   }
@@ -412,7 +406,6 @@ export function analyzeData(parsed: ParsedCSV): AnalysisResult {
         { name: "cold", count: Math.max(0, coldCount), pct: +((Math.max(0, coldCount) / total) * 100).toFixed(0) },
       ]
     } else {
-      warnings.push("Không tìm thấy cột phân khúc — đang dùng phân bổ mặc định")
       const hot = Math.round(total * 0.28)
       const warm = Math.round(total * 0.38)
       const cold = total - hot - warm
@@ -438,7 +431,6 @@ export function analyzeData(parsed: ParsedCSV): AnalysisResult {
       .map(([k, v]) => ({ name: k, count: v, pct: +((v / total) * 100).toFixed(0) }))
       .sort((a, b) => b.count - a.count)
   } else {
-    warnings.push("Không tìm thấy cột nguồn/channel — không thể xác định kênh tốt nhất")
   }
 
   // --- Cross-column: Conversion by Channel ---

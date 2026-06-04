@@ -11,11 +11,6 @@ com/example/socialpurchase/repository/UserRepository.class
 com/example/socialpurchase/service/JobWorkerService.class
 com/example/socialpurchase/SocialPurchaseApplication.class
 com/example/socialpurchase/entity/PredictionResult.class
-com/example/socialpurchase/client/OpenAiClient.class
-com/example/socialpurchase/repository/ChatHistoryRepository.class
-com/example/socialpurchase/service/ChatbotService.class
-com/example/socialpurchase/entity/ChatHistory.class
 com/example/socialpurchase/entity/User.class
-com/example/socialpurchase/controller/ChatbotController.class
 com/example/socialpurchase/repository/PredictionResultRepository.class
 com/example/socialpurchase/service/MLBatchService.class

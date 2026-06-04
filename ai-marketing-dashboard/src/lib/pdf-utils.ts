@@ -1,8 +1,6 @@
 import html2canvas from "html2canvas"
 import jsPDF from "jspdf"
 
-const UNSUPPORTED_COLORS = /oklch\(|oklab\(|lab\(|color\(/gi
-
 export function formatDate(date?: Date): string {
   const d = date || new Date()
   return d.toLocaleDateString("vi-VN", {
@@ -20,90 +18,89 @@ export function getFileName(base: string): string {
   return `${safe}_${timestamp}.pdf`
 }
 
-function stripUnsupportedColors(doc: Document): void {
-  for (const sheet of Array.from(doc.styleSheets)) {
-    try {
-      for (let i = sheet.cssRules.length - 1; i >= 0; i--) {
-        const rule = sheet.cssRules[i] as CSSStyleRule
-        if (rule.cssText && UNSUPPORTED_COLORS.test(rule.cssText)) {
-          const safeCss = rule.cssText.replace(
-            /(oklch|oklab|lab|color)\s*\([^)]+\)/gi,
-            "rgb(128,128,128)"
-          )
-          sheet.deleteRule(i)
-          try {
-            sheet.insertRule(safeCss, i)
-          } catch {
-            /* re-insert failed — rule omitted, safe fallback */
-          }
-        }
-      }
-    } catch {
-      /* cross-origin or inaccessible stylesheet */
-    }
-  }
-}
-
-const HEX_OVERRIDES = `
-  :root {
-    --background: #ffffff !important;
-    --foreground: #0f0f0f !important;
-    --card: #ffffff !important;
-    --card-foreground: #0f0f0f !important;
-    --popover: #ffffff !important;
-    --popover-foreground: #0f0f0f !important;
-    --primary: #0f0f0f !important;
-    --primary-foreground: #ffffff !important;
-    --secondary: #f5f5f5 !important;
-    --secondary-foreground: #0f0f0f !important;
-    --muted: #f5f5f5 !important;
-    --muted-foreground: #737373 !important;
-    --accent: #f5f5f5 !important;
-    --accent-foreground: #0f0f0f !important;
-    --destructive: #ef4444 !important;
-    --border: #e5e5e5 !important;
-    --input: #e5e5e5 !important;
-    --ring: #d4d4d4 !important;
-    --chart-1: #e5e5e5 !important;
-    --chart-2: #737373 !important;
-    --chart-3: #525252 !important;
-    --chart-4: #404040 !important;
-    --chart-5: #262626 !important;
-    --sidebar: #fafafa !important;
-    --sidebar-foreground: #0f0f0f !important;
-    --sidebar-primary: #4f46e5 !important;
-    --sidebar-primary-foreground: #ffffff !important;
-    --sidebar-accent: #f5f5f5 !important;
-    --sidebar-accent-foreground: #0f0f0f !important;
-    --sidebar-border: #e5e5e5 !important;
-    --sidebar-ring: #d4d4d4 !important;
-  }
-  * { color-scheme: light !important; }
-`
-
 export async function generatePDF(
   targetId: string,
   filename: string,
   onProgress?: (pct: number) => void
 ): Promise<void> {
   const element = document.getElementById(targetId)
-  if (!element) throw new Error(`Element #${targetId} not found`)
+  if (!element) throw new Error(`Không tìm thấy phần tử #${targetId}`)
 
   onProgress?.(10)
 
-  const canvas = await html2canvas(element, {
-    scale: 2,
-    backgroundColor: "#ffffff",
-    logging: false,
-    useCORS: true,
-    allowTaint: false,
-    onclone: (doc) => {
-      stripUnsupportedColors(doc)
-      const style = doc.createElement("style")
-      style.textContent = HEX_OVERRIDES
-      doc.head.appendChild(style)
-    },
-  })
+  const unsafeRE = /(oklch|oklab|lab|color)\s*\(/gi
+  const savedStyles: { el: HTMLStyleElement; text: string }[] = []
+
+  for (const s of Array.from(document.querySelectorAll("style"))) {
+    if (unsafeRE.test(s.textContent)) {
+      unsafeRE.lastIndex = 0
+      savedStyles.push({ el: s, text: s.textContent })
+      s.textContent = s.textContent.replace(unsafeRE, "#888 ")
+    }
+  }
+
+  const safeTag = document.createElement("style")
+  safeTag.id = "__pdf_export_safe__"
+  safeTag.textContent = `
+    *, *::before, *::after {
+      color-scheme: light !important;
+    }
+    :root, :host, html {
+      --background: #ffffff !important;
+      --foreground: #0f0f0f !important;
+      --card: #ffffff !important;
+      --card-foreground: #0f0f0f !important;
+      --popover: #ffffff !important;
+      --popover-foreground: #0f0f0f !important;
+      --primary: #0f0f0f !important;
+      --primary-foreground: #ffffff !important;
+      --secondary: #f5f5f5 !important;
+      --secondary-foreground: #0f0f0f !important;
+      --muted: #f5f5f5 !important;
+      --muted-foreground: #737373 !important;
+      --accent: #f5f5f5 !important;
+      --accent-foreground: #0f0f0f !important;
+      --destructive: #ef4444 !important;
+      --border: #e5e5e5 !important;
+      --input: #e5e5e5 !important;
+      --ring: #d4d4d4 !important;
+      --chart-1: #e5e5e5 !important;
+      --chart-2: #737373 !important;
+      --chart-3: #525252 !important;
+      --chart-4: #404040 !important;
+      --chart-5: #262626 !important;
+      --sidebar: #fafafa !important;
+      --sidebar-foreground: #0f0f0f !important;
+      --sidebar-primary: #4f46e5 !important;
+      --sidebar-primary-foreground: #ffffff !important;
+      --sidebar-accent: #f5f5f5 !important;
+      --sidebar-accent-foreground: #0f0f0f !important;
+      --sidebar-border: #e5e5e5 !important;
+      --sidebar-ring: #d4d4d4 !important;
+      --radius: 0.5rem !important;
+    }
+  `
+  document.head.appendChild(safeTag)
+
+  document.documentElement.offsetHeight
+
+  let canvas: HTMLCanvasElement
+  try {
+    canvas = await html2canvas(element, {
+      scale: 2,
+      backgroundColor: "#ffffff",
+      logging: false,
+      useCORS: true,
+      allowTaint: true,
+    })
+  } catch (err) {
+    throw new Error(`Không thể chụp nội dung: ${err instanceof Error ? err.message : "Lỗi không xác định"}`)
+  } finally {
+    for (const { el, text } of savedStyles) {
+      el.textContent = text
+    }
+    safeTag.remove()
+  }
 
   onProgress?.(50)
 
@@ -111,16 +108,17 @@ export async function generatePDF(
   const imgWidth = 210
   const pageHeight = 297
   const imgHeight = (canvas.height * imgWidth) / canvas.width
+  const marginTop = 10
 
   const pdf = new jsPDF("p", "mm", "a4")
-  let heightLeft = imgHeight
-  let position = 0
+  let heightLeft = imgHeight + marginTop
+  let position = -marginTop
 
   pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight)
   heightLeft -= pageHeight
 
   while (heightLeft > 0) {
-    position = heightLeft - imgHeight
+    position = -marginTop - (imgHeight - heightLeft - marginTop)
     pdf.addPage()
     pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight)
     heightLeft -= pageHeight
@@ -128,7 +126,11 @@ export async function generatePDF(
 
   onProgress?.(90)
 
-  pdf.save(filename)
+  try {
+    pdf.save(filename)
+  } catch (err) {
+    throw new Error(`Không thể lưu PDF: ${err instanceof Error ? err.message : "Lỗi không xác định"}`)
+  }
 
   onProgress?.(100)
 }
